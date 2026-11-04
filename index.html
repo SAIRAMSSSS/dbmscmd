@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Prompt - mysql -u root -p</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            font-family: 'Consolas', 'Lucida Console', 'Courier New', monospace;
+            border-radius: 0px !important;
+        }
+        body {
+            background-color: #000000;
+            color: #cccccc;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        /* Classic Windows CMD Scrollbar */
+        ::-webkit-scrollbar {
+            width: 14px;
+            height: 14px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border-left: 1px solid #333333;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4d4d4d;
+            border: 2px solid #1a1a1a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #737373;
+        }
+        .cmd-window {
+            background-color: #000000;
+            border: 1px solid #444444;
+        }
+        .cmd-input:focus {
+            outline: none;
+        }
+        .win-btn:hover {
+            background-color: #e5e5e5;
+            color: #000000;
+        }
+        .win-close:hover {
+            background-color: #ffffff;
+            color: #000000;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col bg-black text-[#cccccc] select-text">
+
+    <!-- Classic Windows Command Prompt Container -->
+    <div class="cmd-window w-full h-full flex flex-col overflow-hidden">
+        
+        <!-- Windows 10 CMD Title Bar -->
+        <div class="bg-[#ffffff] text-[#000000] h-8 px-2 flex items-center justify-between shrink-0 select-none border-b border-[#cccccc]">
+            <div class="flex items-center space-x-2 text-xs">
+                <span class="bg-black text-white px-1 font-bold text-[10px] leading-4 border border-black">C:\_</span>
+                <span class="font-normal tracking-tight">Command Prompt - mysql -u root -p</span>
+            </div>
+            <div class="flex items-center h-full">
+                <button onclick="executeCommand('ls')" title="List Experiments" class="win-btn h-full px-4 text-xs flex items-center justify-center transition">_</button>
+                <button onclick="executeCommand('host')" title="Hosting Guide" class="win-btn h-full px-4 text-xs flex items-center justify-center transition">□</button>
+                <button onclick="executeCommand('cls')" title="Clear Screen" class="win-close h-full px-4 text-xs flex items-center justify-center font-bold transition">✕</button>
+            </div>
+        </div>
+
+        <!-- Terminal Output Stream -->
+        <div id="terminal-body" class="flex-1 p-3 sm:p-4 overflow-y-auto text-sm sm:text-base leading-snug space-y-2 bg-black text-[#cccccc]" onclick="focusInputIfNotSelecting()">
+            <!-- Dynamic CMD & MySQL output injected here -->
+        </div>
+
+        <!-- Active mysql> Prompt Line Fixed at Bottom -->
+        <div class="bg-black px-3 sm:px-4 pb-3 pt-1 flex items-center shrink-0" onclick="focusInputIfNotSelecting()">
+            <label for="cmd-input" class="text-[#cccccc] text-sm sm:text-base shrink-0 select-none mr-2">mysql&gt;</label>
+            <input 
+                id="cmd-input" 
+                type="text" 
+                autocomplete="off" 
+                autocorrect="off" 
+                autocapitalize="off" 
+                spellcheck="false"
+                class="cmd-input w-full bg-black text-[#ffffff] text-sm sm:text-base caret-white"
+                autofocus
+            />
+        </div>
+    </div>
+
+    <script>
+        // Clean SQL Queries Repository (Strictly NO SQL comments, all OCR issues resolved)
+        const experiments = {
+            "0": {
+                id: "0",
+                title: "Initial Database Setup",
+                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
+USE dbms_lab;`
+            },
+            "1": {
+                id: "1",
+                title: "Question 1: STUDENT Table Operations",
+                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
+USE dbms_lab;
+
+CREATE TABLE student (
+    student_id INT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    age INT CHECK (age >= 18),
+    department VARCHAR(30) NOT NULL,
+    phone VARCHAR(15)
+);
+
+INSERT INTO student VALUES
+(101, 'Arun', 'arun@gmail.com', 20, 'CSE', '9876543210'),
+(102, 'Priya', 'priya@gmail.com', 21, 'ECE', '9876543211'),
+(103, 'Kumar', 'kumar@gmail.com', 19, 'CSE', '9876543212'),
+(104, 'Divya', 'divya@gmail.com', 22, 'IT', '9876543213'),
+(105, 'Rahul', 'rahul@gmail.com', 20, 'EEE', '9876543214');
+
+SELECT * FROM student;
+
+UPDATE student
+SET age = 21
+WHERE student_id = 101;
+
+DELETE FROM student
+WHERE student_id = 105;
+
+SELECT * FROM student;`
+            },
+            "2": {
+                id: "2",
+                title: "Question 2: Referential Integrity (DEPARTMENT and EMPLOYEE)",
+                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
+USE dbms_lab;
+
+CREATE TABLE department (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50) NOT NULL,
+    location VARCHAR(50)
+);
+
+CREATE TABLE employee (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50) NOT NULL,
+    salary DECIMAL(10,2),
+    dept_id INT,
+    FOREIGN KEY (dept_id) REFERENCES department(dept_id)
+);
+
+INSERT INTO department VALUES
+(1, 'CSE', 'Block A'),
+(2, 'ECE', 'Block B'),
+(3, 'IT', 'Block C'),
+(4, 'EEE', 'Block D');
+
+INSERT INTO employee VALUES
+(101, 'Arun', 50000, 1),
+(102, 'Priya', 55000, 2),
+(103, 'Kumar', 60000, 1),
+(104, 'Divya', 65000, 3);
+
+SELECT * FROM department;
+SELECT * FROM employee;
+
+SELECT e.emp_id, e.emp_name, e.salary, d.dept_name
+FROM employee e
+JOIN department d ON e.dept_id = d.dept_id;
+
+DELETE FROM department
+WHERE dept_id = 1;`
+            },
+            "3": {
+                id: "3",
+                title: "Question 3: Filtering, Pattern Matching, and Aggregation",
+                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
+USE dbms_lab;
+
+CREATE TABLE IF NOT EXISTS department (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50) NOT NULL,
+    location VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS employee (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50) NOT NULL,
+    salary DECIMAL(10,2),
+    dept_id INT,
+    FOREIGN KEY (dept_id) REFERENCES department(dept_id)
+);
+
+INSERT IGNORE INTO department VALUES
+(1, 'CSE', 'Block A'),
+(2, 'ECE', 'Block B'),
+(3, 'IT', 'Block C'),
+(4, 'EEE', 'Block D'),
+(5, 'HR', 'Block E');
+
+INSERT IGNORE INTO employee VALUES
+(101, 'Arun', 50000, 1),
+(102, 'Priya', 55000, 2),
+(103, 'Kumar', 60000, 1),
+(104, 'Divya', 65000, 3),
+(105, 'Anand', 45000, 5),
+(106, 'Kiran', 72000, 3),
+(107, 'Ajay', 35000, 2),
+(108, 'Meena', 80000, 1),
+(109, 'Rohan', 28000, 4),
+(110, 'Sonia', 52000, 5);
+
+SELECT * FROM employee WHERE salary > 50000;
+
+SELECT * FROM employee WHERE salary BETWEEN 30000 AND 70000;
+
+SELECT e.* FROM employee e
+JOIN department d ON e.dept_id = d.dept_id
+WHERE d.dept_name = 'CSE';
+
+SELECT e.* FROM employee e
+JOIN department d ON e.dept_id = d.dept_id
+WHERE d.dept_name IN ('IT', 'HR');
+
+SELECT * FROM employee WHERE emp_name LIKE 'A%';
+
+SELECT * FROM employee WHERE emp_name LIKE '%an%';
+
+SELECT MAX(salary) AS maximum_salary FROM employee;
+SELECT MIN(salary) AS minimum_salary FROM employee;
+SELECT AVG(salary) AS average_salary FROM employee;
+SELECT SUM(salary) AS total_salary FROM employee;
+SELECT COUNT(*) AS employee_count FROM employee;
+
+SELECT d.dept_name, AVG(e.salary) AS average_salary
+FROM employee e
+JOIN department d ON e.dept_id = d.dept_id
+GROUP BY d.dept_name;
+
+SELECT d.dept_name, MAX(e.salary) AS maximum_salary
+FROM employee e
+JOIN department d ON e.dept_id = d.dept_id
+GROUP BY d.dept_name;`
+            },
+            "4": {
+                id: "4",
+                title: "Question 4: Subqueries and JOINS",
+                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
+USE dbms_lab;
+
+CREATE TABLE IF NOT EXISTS department (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50) NOT NULL,
+    location VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS employee (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50) NOT NULL,
+    salary DECIMAL(10,2),
+    dept_id INT,
+    FOREIGN KEY (dept_id) REFERENCES department(dept_id)
+);
+
+INSERT IGNORE INTO department VALUES
+(1, 'CSE', 'Block A'),
+(2, 'ECE', 'Block B'),
+(3, 'IT', 'Block C'),
+(4, 'EEE', 'Block D');
+
+INSERT IGNORE INTO employee VALUES
+(101, 'Arun', 50000, 1),
+(102, 'Priya', 55000, 2),
+(103, 'Kumar', 60000, 1),
+(104, 'Divya', 65000, 3);
+
+SELECT * FROM employee
+WHERE dept_id = (SELECT dept_id FROM department WHERE dept_name = 'IT');
+
+SELECT * FROM employee
+WHERE salary > (SELECT AVG(salary) FROM employee);
+
+SELECT * FROM employee
+WHERE salary = (SELECT MAX(salary) FROM employee);
+
+SELECT * FROM employee
+WHERE dept_id = (SELECT dept_id FROM employee WHERE emp_name = 'Arun');
+
+SELECT e.emp_name, d.dept_name
+FROM employee e
+JOIN department d ON e.dept_id = d.dept_id;
+
+SELECT e.* FROM employee e
+JOIN department d ON e.dept_id = d.dept_id
+WHERE d.dept_name = 'CSE';`
+            },
+            "5": {
+                id: "5",
+                title: "Question 5: SQL JOIN Operations",
+                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
+USE dbms_lab;
+
+CREATE TABLE IF NOT EXISTS department (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50) NOT NULL,
+    location VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS employee (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50) NOT NULL,
+    salary DECIMAL(10,2),
+    dept_id INT,
+    FOREIGN KEY (dept_id) REFERENCES department(dept_id)
+);
+
+INSERT IGNORE INTO department VALUES
+(1, 'CSE', 'Block A'),
+(2, 'ECE', 'Block B'),
+(3, 'IT', 'Block C'),
+(4, 'EEE', 'Block D');
+
+INSERT IGNORE INTO employee VALUES
+(101, 'Arun', 50000, 1),
+(102, 'Priya', 55000, 2),
+(103, 'Kumar', 60000, 1),
+(104, 'Divya', 65000, 3);
+
+SELECT e.emp_name, d.dept_name
+FROM employee e
+NATURAL JOIN department d;
+
+SELECT e.emp_id, e.emp_name, e.salary, d.dept_name
+FROM employee e
+JOIN department d ON e.dept_id = d.dept_id;
+
+SELECT d.dept_name, e.emp_name
+FROM department d
+LEFT JOIN employee e ON d.dept_id = e.dept_id;
+
+SELECT e.emp_id, e.emp_name, d.dept_name
+FROM department d
+RIGHT JOIN employee e ON d.dept_id = e.dept_id;
+
+SELECT e.emp_id, e.emp_name, d.dept_name
+FROM employee e
+LEFT JOIN department d ON e.dept_id = d.dept_id
+UNION
+SELECT e.emp_id, e.emp_name, d.dept_name
+FROM employee e
+RIGHT JOIN department d ON e.dept_id = d.dept_id;`
+            },
+            "6": {
+                id: "6",
+                title: "Question 6: Functions and Stored Procedures",
+                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
+USE dbms_lab;
+
+CREATE TABLE IF NOT EXISTS department (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50) NOT NULL,
+    location VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS employee (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50) NOT NULL,
+    salary DECIMAL(10,2),
+    dept_id INT,
+    FOREIGN KEY (dept_id) REFERENCES department(dept_id)
+);
+
+INSERT IGNORE INTO department VALUES
+(1, 'CSE', 'Block A'),
+(2, 'ECE', 'Block B'),
+(3, 'IT', 'Block C'),
+(4, 'EEE', 'Block D');
+
+INSERT IGNORE INTO employee VALUES
+(101, 'Arun', 50000, 1),
+(102, 'Priya', 55000, 2),
+(103, 'Kumar', 60000, 1),
+(104, 'Divya', 65000, 3);
+
+DELIMITER //
+CREATE FUNCTION annual_salary(monthly_salary DECIMAL(10,2))
+RETURNS DECIMAL(12,2) DETERMINISTIC
+BEGIN
+    RETURN monthly_salary * 12;
+END //
+DELIMITER ;
+
+SELECT emp_name, salary, annual_salary(salary) AS yearly_salary FROM employee;
+
+DELIMITER //
+CREATE FUNCTION bonus_status(emp_salary DECIMAL(10,2))
+RETURNS VARCHAR(20) DETERMINISTIC
+BEGIN
+    IF emp_salary >= 50000 THEN
+        RETURN 'Eligible';
+    ELSE
+        RETURN 'Not Eligible';
+    END IF;
+END //
+DELIMITER ;
+
+SELECT emp_name, salary, bonus_status(salary) AS bonus FROM employee;
+
+DELIMITER //
+CREATE PROCEDURE get_employee(IN id INT)
+BEGIN
+    SELECT * FROM employee WHERE emp_id = id;
+END //
+DELIMITER ;
+
+CALL get_employee(101);
+
+DELIMITER //
+CREATE PROCEDURE update_salary(IN id INT, IN new_salary DECIMAL(10,2))
+BEGIN
+    UPDATE employee SET salary = new_salary WHERE emp_id = id;
+END //
+DELIMITER ;
+
+CALL update_salary(101, 70000);
+SELECT * FROM employee WHERE emp_id = 101;`
+            },
+            "7": {
+                id: "7",
+                title: "Question 7: TCL and DCL Commands",
+                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
+USE dbms_lab;
+
+CREATE TABLE account (
+    account_no INT PRIMARY KEY,
+    account_holder VARCHAR(50),
+    balance DECIMAL(10, 2)
+);
+
+INSERT INTO account VALUES (1001, 'Arun', 10000), (1002, 'Priya', 15000);
+
+START TRANSACTION;
+UPDATE account SET balance = balance - 2000 WHERE account_no = 1001;
+UPDATE account SET balance = balance + 2000 WHERE account_no = 1002;
+COMMIT;
+SELECT * FROM account;
+
+START TRANSACTION;
+UPDATE account SET balance = balance - 5000 WHERE account_no = 1001;
+ROLLBACK;
+SELECT * FROM account;
+
+START TRANSACTION;
+UPDATE account SET balance = balance - 1000 WHERE account_no = 1001;
+SAVEPOINT sp1;
+UPDATE account SET balance = balance + 1000 WHERE account_no = 1002;
+ROLLBACK TO SAVEPOINT sp1;
+COMMIT;
+SELECT * FROM account;
+
+GRANT SELECT ON employee TO labuser;
+REVOKE SELECT ON employee FROM labuser;`
+            },
+            "8": {
+                id: "8",
+                title: "Question 8: Database Triggers for Auditing",
+                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
+USE dbms_lab;
+
+CREATE TABLE IF NOT EXISTS department (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50) NOT NULL,
+    location VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS employee (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50) NOT NULL,
+    salary DECIMAL(10,2),
+    dept_id INT,
+    FOREIGN KEY (dept_id) REFERENCES department(dept_id)
+);
+
+INSERT IGNORE INTO department VALUES
+(1, 'CSE', 'Block A'),
+(2, 'ECE', 'Block B'),
+(3, 'IT', 'Block C'),
+(4, 'EEE', 'Block D');
+
+INSERT IGNORE INTO employee VALUES
+(101, 'Arun', 50000, 1),
+(102, 'Priya', 55000, 2),
+(103, 'Kumar', 60000, 1),
+(104, 'Divya', 65000, 3);
+
+CREATE TABLE employee_audit (
+    audit_id INT AUTO_INCREMENT PRIMARY KEY,
+    emp_id INT,
+    operation VARCHAR(20),
+    operation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+DELIMITER //
+CREATE TRIGGER employee_insert
+AFTER INSERT ON employee
+FOR EACH ROW
+BEGIN
+    INSERT INTO employee_audit(emp_id, operation) VALUES (NEW.emp_id, 'INSERT');
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER employee_update
+AFTER UPDATE ON employee
+FOR EACH ROW
+BEGIN
+    INSERT INTO employee_audit(emp_id, operation) VALUES (NEW.emp_id, 'UPDATE');
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER employee_delete
+AFTER DELETE ON employee
+FOR EACH ROW
+BEGIN
+    INSERT INTO employee_audit(emp_id, operation) VALUES (OLD.emp_id, 'DELETE');
+END //
+DELIMITER ;
+
+INSERT INTO employee VALUES (105, 'Ravi', 45000, 4);
+UPDATE employee SET salary = 50000 WHERE emp_id = 105;
+DELETE FROM employee WHERE emp_id = 105;
+SELECT * FROM employee_audit;`
+            },
+            "9": {
+                id: "9",
+                title: "Question 9: Views and Indexes",
+                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
+USE dbms_lab;
+
+CREATE TABLE IF NOT EXISTS department (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50) NOT NULL,
+    location VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS employee (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(50) NOT NULL,
+    salary DECIMAL(10,2),
+    dept_id INT,
+    FOREIGN KEY (dept_id) REFERENCES department(dept_id)
+);
+
+INSERT IGNORE INTO department VALUES
+(1, 'CSE', 'Block A'),
+(2, 'ECE', 'Block B'),
+(3, 'IT', 'Block C'),
+(4, 'EEE', 'Block D');
+
+INSERT IGNORE INTO employee VALUES
+(101, 'Arun', 50000, 1),
+(102, 'Priya', 55000, 2),
+(103, 'Kumar', 60000, 1),
+(104, 'Divya', 65000, 3);
+
+CREATE VIEW it_employees AS
+SELECT e.emp_id, e.emp_name, e.salary, d.dept_name
+FROM employee e
+JOIN department d ON e.dept_id = d.dept_id
+WHERE d.dept_name = 'IT';
+
+SELECT * FROM it_employees;
+
+CREATE VIEW high_salary_employees AS
+SELECT emp_id, emp_name, salary
+FROM employee
+WHERE salary > 50000;
+
+SELECT * FROM high_salary_employees;
+
+CREATE INDEX idx_employee_name ON employee(emp_name);
+CREATE INDEX idx_employee_department ON employee(dept_id);
+SHOW INDEX FROM employee;
+
+DROP INDEX idx_employee_name ON employee;
+DROP VIEW it_employees;`
+            }
+        };
+
+        const terminalBody = document.getElementById('terminal-body');
+        const cmdInput = document.getElementById('cmd-input');
+        let commandHistory = [];
+        let historyIndex = -1;
+
+        // Escape HTML characters safely
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        // Copy raw SQL text reliably inside iframe or browser
+        function copyTextToClipboard(text, btnElement) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                if (btnElement) {
+                    const originalText = btnElement.textContent;
+                    btnElement.textContent = '[Copied]';
+                    setTimeout(() => {
+                        btnElement.textContent = originalText;
+                    }, 1500);
+                }
+                return true;
+            } catch (err) {
+                return false;
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+
+        // Copy by experiment key
+        function copyExperimentSQL(expKey, btnId) {
+            const exp = experiments[expKey];
+            if (!exp) return;
+            const btn = btnId ? document.getElementById(btnId) : null;
+            copyTextToClipboard(exp.sql, btn);
+        }
+
+        // Render classic Windows CMD + MySQL Startup Banner
+        function renderWelcomeBanner() {
+            const bannerHTML = `
+                <div class="text-[#cccccc] whitespace-pre-wrap leading-snug">Microsoft Windows [Version 10.0.19045.5011]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\\Users\\Administrator&gt;mysql -u root -p
+Enter password: ****
+Welcome to the MySQL monitor.  Commands end with ; or \\g.
+Your MySQL connection id is 8
+Server version: 8.0.36 MySQL Community Server - GPL
+
+Type '1' through '9' to display experiment queries, 'ls' to list all experiments, 'cp &lt;num&gt;' to copy, or 'cls' / 'clear' to clear.</div>
+            `;
+            appendOutputBlock(bannerHTML);
+        }
+
+        // Append echoed mysql> command line
+        function appendCommandEcho(rawCmd) {
+            const cmdLine = document.createElement('div');
+            cmdLine.className = "text-[#cccccc] whitespace-pre-wrap pt-1";
+            cmdLine.innerHTML = `mysql&gt; <span class="text-[#ffffff]">${escapeHtml(rawCmd)}</span>`;
+            terminalBody.appendChild(cmdLine);
+        }
+
+        // Append arbitrary HTML block to terminal stream
+        function appendOutputBlock(htmlContent) {
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = htmlContent;
+            terminalBody.appendChild(wrapper);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+        }
+
+        // Format Experiment SQL Block strictly in monochrome with minimal [Copy] button
+        function renderExperimentBlock(expKey) {
+            const exp = experiments[expKey];
+            const uniqueBtnId = `copy-btn-${expKey}-${Date.now()}`;
+            return `
+                <div class="my-1 border border-[#555555] bg-black p-3">
+                    <div class="flex items-center justify-between border-b border-[#444444] pb-1.5 mb-2 text-xs sm:text-sm text-[#cccccc]">
+                        <span>-- ${escapeHtml(exp.title)}</span>
+                        <button 
+                            id="${uniqueBtnId}"
+                            onclick="copyExperimentSQL('${expKey}', '${uniqueBtnId}')" 
+                            class="text-[#ffffff] hover:bg-[#cccccc] hover:text-black px-1.5 py-0.5 border border-[#777777] text-xs cursor-pointer select-none"
+                        >[Copy]</button>
+                    </div>
+                    <pre class="text-[#ffffff] text-xs sm:text-sm overflow-x-auto whitespace-pre-wrap leading-relaxed select-all"><code>${escapeHtml(exp.sql)}</code></pre>
+                </div>
+            `;
+        }
+
+        // Render ASCII Table List of all Experiments
+        function renderExperimentList() {
+            let rows = '';
+            Object.keys(experiments).forEach(key => {
+                const exp = experiments[key];
+                const paddedKey = key.padEnd(4, ' ');
+                const paddedTitle = exp.title.padEnd(60, ' ');
+                rows += `| ${paddedKey} | ${escapeHtml(paddedTitle)} |\n`;
+            });
+
+            return `
+                <pre class="text-[#cccccc] text-xs sm:text-sm overflow-x-auto leading-snug">+------+--------------------------------------------------------------+
+| Cmd  | Experiment Title                                             |
++------+--------------------------------------------------------------+
+${rows}+------+--------------------------------------------------------------+
+10 rows in set (0.00 sec)
+Commands: type 1-9 to view SQL, cp &lt;1-9&gt; to copy SQL, cls to clear.</pre>
+            `;
+        }
+
+        // Render monochrome Hosting Guide
+        function renderHostGuide() {
+            return `
+                <pre class="text-[#cccccc] text-xs sm:text-sm overflow-x-auto whitespace-pre-wrap leading-snug">+--------------------------------------------------------------------+
+| FREE CUSTOM DOMAIN HOSTING GUIDE                                   |
++--------------------------------------------------------------------+
+1. Save this code as index.html inside an empty folder.
+2. Open https://app.netlify.com/drop in your browser.
+3. Drag and drop the folder onto the page.
+4. Go to Site Configuration -> Change site name -> set an easy name
+   such as: mysqllab.netlify.app</pre>
+            `;
+        }
+
+        // Main command router
+        function executeCommand(rawInput) {
+            const trimmed = rawInput.trim();
+            if (!trimmed) {
+                appendCommandEcho('');
+                scrollToBottom();
+                return;
+            }
+
+            // Record command history
+            commandHistory.push(trimmed);
+            historyIndex = commandHistory.length;
+
+            // Strip trailing semicolon if user types SQL style like "1;" or "ls;"
+            const cleanInput = trimmed.replace(/;$/, '').trim();
+            const lower = cleanInput.toLowerCase();
+
+            // Clear terminal
+            if (lower === 'clear' || lower === 'cls' || lower === '\\! cls' || lower === 'system cls') {
+                terminalBody.innerHTML = '';
+                return;
+            }
+
+            // Echo user command
+            appendCommandEcho(trimmed);
+
+            // Check direct experiment number (0-9) or 'setup'
+            if (lower === 'setup') {
+                appendOutputBlock(renderExperimentBlock('0'));
+                return;
+            }
+            if (experiments.hasOwnProperty(lower)) {
+                appendOutputBlock(renderExperimentBlock(lower));
+                return;
+            }
+
+            // Support "exp 1" or "q1" or "question 1"
+            const expMatch = lower.match(/^(?:exp|experiment|q|question)\s*([0-9])$/);
+            if (expMatch) {
+                appendOutputBlock(renderExperimentBlock(expMatch[1]));
+                return;
+            }
+
+            // List all experiments
+            if (lower === 'ls' || lower === 'list' || lower === 'dir' || lower === 'help' || lower === '?' || lower === '\\h') {
+                appendOutputBlock(renderExperimentList());
+                return;
+            }
+
+            // Copy command: "copy <0-9>" or "cp <0-9>"
+            const copyMatch = lower.match(/^(?:copy|cp)\s+([0-9]|setup)$/);
+            if (copyMatch) {
+                const targetKey = copyMatch[1] === 'setup' ? '0' : copyMatch[1];
+                const exp = experiments[targetKey];
+                const ok = copyTextToClipboard(exp.sql, null);
+                if (ok) {
+                    appendOutputBlock(`<div class="text-[#cccccc]">Query copied to clipboard.</div>`);
+                }
+                return;
+            }
+
+            // All experiments at once
+            if (lower === 'all') {
+                Object.keys(experiments).forEach(k => {
+                    if (k !== '0') appendOutputBlock(renderExperimentBlock(k));
+                });
+                return;
+            }
+
+            // Free hosting guide
+            if (lower === 'host' || lower === 'domain' || lower === 'deploy') {
+                appendOutputBlock(renderHostGuide());
+                return;
+            }
+
+            // Unknown command fallback mimicking MySQL syntax error
+            appendOutputBlock(`
+                <div class="text-[#cccccc] whitespace-pre-wrap">ERROR 1064 (42000): You have an error in your SQL syntax; type '1'-'9' for experiment queries, 'ls' to list, 'cp &lt;num&gt;' to copy, or 'cls' to clear.</div>
+            `);
+        }
+
+        function submitCurrentInput() {
+            const val = cmdInput.value;
+            cmdInput.value = '';
+            executeCommand(val);
+            cmdInput.focus();
+        }
+
+        // Keyboard Listeners (Enter, Ctrl+M, Ctrl+L, Up/Down History)
+        cmdInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || (e.ctrlKey && e.key.toLowerCase() === 'm')) {
+                e.preventDefault();
+                submitCurrentInput();
+            } else if (e.ctrlKey && e.key.toLowerCase() === 'l') {
+                e.preventDefault();
+                executeCommand('cls');
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    cmdInput.value = commandHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    cmdInput.value = commandHistory[historyIndex];
+                } else {
+                    historyIndex = commandHistory.length;
+                    cmdInput.value = '';
+                }
+            }
+        });
+
+        // Keep input focused when clicking terminal background unless selecting SQL text
+        function focusInputIfNotSelecting() {
+            const selection = window.getSelection();
+            if (!selection || selection.toString().length === 0) {
+                cmdInput.focus();
+            }
+        }
+
+        // Initialize Terminal on Load
+        window.onload = () => {
+            renderWelcomeBanner();
+            cmdInput.focus();
+        };
+    </script>
+</body>
+</html>
