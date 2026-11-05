@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Command Prompt - mysql -u root -p</title>
+    <title>Command Prompt - python -i</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -60,7 +60,7 @@
         <div class="bg-[#ffffff] text-[#000000] h-8 px-2 flex items-center justify-between shrink-0 select-none border-b border-[#cccccc]">
             <div class="flex items-center space-x-2 text-xs">
                 <span class="bg-black text-white px-1 font-bold text-[10px] leading-4 border border-black">C:\_</span>
-                <span class="font-normal tracking-tight">Command Prompt - mysql -u root -p</span>
+                <span class="font-normal tracking-tight">Command Prompt - python -i</span>
             </div>
             <div class="flex items-center h-full">
                 <button onclick="executeCommand('ls')" title="List Experiments" class="win-btn h-full px-4 text-xs flex items-center justify-center transition">_</button>
@@ -71,12 +71,12 @@
 
         <!-- Terminal Output Stream -->
         <div id="terminal-body" class="flex-1 p-3 sm:p-4 overflow-y-auto text-sm sm:text-base leading-snug space-y-2 bg-black text-[#cccccc]" onclick="focusInputIfNotSelecting()">
-            <!-- Dynamic CMD & MySQL output injected here -->
+            <!-- Dynamic CMD & Python output injected here -->
         </div>
 
-        <!-- Active mysql> Prompt Line Fixed at Bottom -->
+        <!-- Active >>> Prompt Line Fixed at Bottom -->
         <div class="bg-black px-3 sm:px-4 pb-3 pt-1 flex items-center shrink-0" onclick="focusInputIfNotSelecting()">
-            <label for="cmd-input" class="text-[#cccccc] text-sm sm:text-base shrink-0 select-none mr-2">mysql&gt;</label>
+            <label for="cmd-input" class="text-[#cccccc] text-sm sm:text-base shrink-0 select-none mr-2">&gt;&gt;&gt;</label>
             <input 
                 id="cmd-input" 
                 type="text" 
@@ -91,504 +91,694 @@
     </div>
 
     <script>
-        // Clean SQL Queries Repository (Strictly NO SQL comments, all OCR issues resolved)
+        // Clean Python Programs Repository (Strictly ONLY the Python code, all OCR issues resolved)
         const experiments = {
-            "0": {
-                id: "0",
-                title: "Initial Database Setup",
-                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
-USE dbms_lab;`
+            "1a": {
+                id: "1a",
+                title: "Ex 1.a: Sum of even numbers from 1 to 50",
+                code: `sum = 0
+for num in range(1, 51):
+    if num % 2 == 0:
+        sum += num
+print("Sum of even numbers from 1 to 50 is:", sum)`
             },
-            "1": {
-                id: "1",
-                title: "Question 1: STUDENT Table Operations",
-                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
-USE dbms_lab;
+            "1b": {
+                id: "1b",
+                title: "Ex 1.b: Python function that returns multiple values",
+                code: `def calculate(a, b):
+    sum_result = a + b
+    diff_result = a - b
+    return sum_result, diff_result
 
-CREATE TABLE student (
-    student_id INT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    email VARCHAR(100) UNIQUE,
-    age INT CHECK (age >= 18),
-    department VARCHAR(30) NOT NULL,
-    phone VARCHAR(15)
-);
-
-INSERT INTO student VALUES
-(101, 'Arun', 'arun@gmail.com', 20, 'CSE', '9876543210'),
-(102, 'Priya', 'priya@gmail.com', 21, 'ECE', '9876543211'),
-(103, 'Kumar', 'kumar@gmail.com', 19, 'CSE', '9876543212'),
-(104, 'Divya', 'divya@gmail.com', 22, 'IT', '9876543213'),
-(105, 'Rahul', 'rahul@gmail.com', 20, 'EEE', '9876543214');
-
-SELECT * FROM student;
-
-UPDATE student
-SET age = 21
-WHERE student_id = 101;
-
-DELETE FROM student
-WHERE student_id = 105;
-
-SELECT * FROM student;`
+x = 10
+y = 5
+sum_val, diff_val = calculate(x, y)
+print("Sum:", sum_val)
+print("Difference:", diff_val)`
             },
-            "2": {
-                id: "2",
-                title: "Question 2: Referential Integrity (DEPARTMENT and EMPLOYEE)",
-                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
-USE dbms_lab;
-
-CREATE TABLE department (
-    dept_id INT PRIMARY KEY,
-    dept_name VARCHAR(50) NOT NULL,
-    location VARCHAR(50)
-);
-
-CREATE TABLE employee (
-    emp_id INT PRIMARY KEY,
-    emp_name VARCHAR(50) NOT NULL,
-    salary DECIMAL(10,2),
-    dept_id INT,
-    FOREIGN KEY (dept_id) REFERENCES department(dept_id)
-);
-
-INSERT INTO department VALUES
-(1, 'CSE', 'Block A'),
-(2, 'ECE', 'Block B'),
-(3, 'IT', 'Block C'),
-(4, 'EEE', 'Block D');
-
-INSERT INTO employee VALUES
-(101, 'Arun', 50000, 1),
-(102, 'Priya', 55000, 2),
-(103, 'Kumar', 60000, 1),
-(104, 'Divya', 65000, 3);
-
-SELECT * FROM department;
-SELECT * FROM employee;
-
-SELECT e.emp_id, e.emp_name, e.salary, d.dept_name
-FROM employee e
-JOIN department d ON e.dept_id = d.dept_id;
-
-DELETE FROM department
-WHERE dept_id = 1;`
+            "2a": {
+                id: "2a",
+                title: "Ex 2.a: Pattern generation using loops",
+                code: `rows = 5
+for i in range(1, rows + 1):
+    for j in range(i):
+        print("*", end="")
+    print()`
             },
-            "3": {
-                id: "3",
-                title: "Question 3: Filtering, Pattern Matching, and Aggregation",
-                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
-USE dbms_lab;
+            "2b": {
+                id: "2b",
+                title: "Ex 2.b: Python function with default arguments",
+                code: `def area(length, width=10):
+    return length * width
 
-CREATE TABLE IF NOT EXISTS department (
-    dept_id INT PRIMARY KEY,
-    dept_name VARCHAR(50) NOT NULL,
-    location VARCHAR(50)
-);
-
-CREATE TABLE IF NOT EXISTS employee (
-    emp_id INT PRIMARY KEY,
-    emp_name VARCHAR(50) NOT NULL,
-    salary DECIMAL(10,2),
-    dept_id INT,
-    FOREIGN KEY (dept_id) REFERENCES department(dept_id)
-);
-
-INSERT IGNORE INTO department VALUES
-(1, 'CSE', 'Block A'),
-(2, 'ECE', 'Block B'),
-(3, 'IT', 'Block C'),
-(4, 'EEE', 'Block D'),
-(5, 'HR', 'Block E');
-
-INSERT IGNORE INTO employee VALUES
-(101, 'Arun', 50000, 1),
-(102, 'Priya', 55000, 2),
-(103, 'Kumar', 60000, 1),
-(104, 'Divya', 65000, 3),
-(105, 'Anand', 45000, 5),
-(106, 'Kiran', 72000, 3),
-(107, 'Ajay', 35000, 2),
-(108, 'Meena', 80000, 1),
-(109, 'Rohan', 28000, 4),
-(110, 'Sonia', 52000, 5);
-
-SELECT * FROM employee WHERE salary > 50000;
-
-SELECT * FROM employee WHERE salary BETWEEN 30000 AND 70000;
-
-SELECT e.* FROM employee e
-JOIN department d ON e.dept_id = d.dept_id
-WHERE d.dept_name = 'CSE';
-
-SELECT e.* FROM employee e
-JOIN department d ON e.dept_id = d.dept_id
-WHERE d.dept_name IN ('IT', 'HR');
-
-SELECT * FROM employee WHERE emp_name LIKE 'A%';
-
-SELECT * FROM employee WHERE emp_name LIKE '%an%';
-
-SELECT MAX(salary) AS maximum_salary FROM employee;
-SELECT MIN(salary) AS minimum_salary FROM employee;
-SELECT AVG(salary) AS average_salary FROM employee;
-SELECT SUM(salary) AS total_salary FROM employee;
-SELECT COUNT(*) AS employee_count FROM employee;
-
-SELECT d.dept_name, AVG(e.salary) AS average_salary
-FROM employee e
-JOIN department d ON e.dept_id = d.dept_id
-GROUP BY d.dept_name;
-
-SELECT d.dept_name, MAX(e.salary) AS maximum_salary
-FROM employee e
-JOIN department d ON e.dept_id = d.dept_id
-GROUP BY d.dept_name;`
+print("Area 1:", area(5, 4))
+print("Area 2:", area(7))`
             },
-            "4": {
-                id: "4",
-                title: "Question 4: Subqueries and JOINS",
-                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
-USE dbms_lab;
+            "3a": {
+                id: "3a",
+                title: "Ex 3.a: Find length of a string without using built-in functions",
+                code: `text = "Hello Python"
+count = 0
+for char in text:
+    count += 1
+print("The length of the string is:", count)`
+            },
+            "3b": {
+                id: "3b",
+                title: "Ex 3.b: Check whether a substring exists within a string",
+                code: `main_string = input("Enter the main string: ")
+substring = input("Enter the substring to search: ")
+if substring in main_string:
+    print("Substring found in the main string.")
+else:
+    print("Substring not found in the main string.")`
+            },
+            "4a": {
+                id: "4a",
+                title: "Ex 4.a: Perform operations on a list",
+                code: `my_list = [10, 20, 30]
+print("Initial List:", my_list)
 
-CREATE TABLE IF NOT EXISTS department (
-    dept_id INT PRIMARY KEY,
-    dept_name VARCHAR(50) NOT NULL,
-    location VARCHAR(50)
-);
+my_list.append(40)
+my_list.append(50)
+print("After Appending:", my_list)
 
-CREATE TABLE IF NOT EXISTS employee (
-    emp_id INT PRIMARY KEY,
-    emp_name VARCHAR(50) NOT NULL,
-    salary DECIMAL(10,2),
-    dept_id INT,
-    FOREIGN KEY (dept_id) REFERENCES department(dept_id)
-);
+my_list.insert(2, 25)
+print("After Inserting 25 at index 2:", my_list)
 
-INSERT IGNORE INTO department VALUES
-(1, 'CSE', 'Block A'),
-(2, 'ECE', 'Block B'),
-(3, 'IT', 'Block C'),
-(4, 'EEE', 'Block D');
-
-INSERT IGNORE INTO employee VALUES
-(101, 'Arun', 50000, 1),
-(102, 'Priya', 55000, 2),
-(103, 'Kumar', 60000, 1),
-(104, 'Divya', 65000, 3);
-
-SELECT * FROM employee
-WHERE dept_id = (SELECT dept_id FROM department WHERE dept_name = 'IT');
-
-SELECT * FROM employee
-WHERE salary > (SELECT AVG(salary) FROM employee);
-
-SELECT * FROM employee
-WHERE salary = (SELECT MAX(salary) FROM employee);
-
-SELECT * FROM employee
-WHERE dept_id = (SELECT dept_id FROM employee WHERE emp_name = 'Arun');
-
-SELECT e.emp_name, d.dept_name
-FROM employee e
-JOIN department d ON e.dept_id = d.dept_id;
-
-SELECT e.* FROM employee e
-JOIN department d ON e.dept_id = d.dept_id
-WHERE d.dept_name = 'CSE';`
+print("Sliced List [1:4]:", my_list[1:4])
+print("Sliced List [:-1]:", my_list[:-1])`
+            },
+            "4b": {
+                id: "4b",
+                title: "Ex 4.b: Apply built-in functions on a list",
+                code: `numbers = [15, 42, 7, 29, 3]
+print("Original List:", numbers)
+print("Length of the list:", len(numbers))
+print("Maximum value:", max(numbers))
+print("Minimum value:", min(numbers))
+print("Sum of elements:", sum(numbers))
+print("Sorted list:", sorted(numbers))`
             },
             "5": {
                 id: "5",
-                title: "Question 5: SQL JOIN Operations",
-                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
-USE dbms_lab;
+                title: "Ex 5: Represent and concatenate tuples",
+                code: `member1 = ("Alice", 20, "Chennai", "ABC College")
+member2 = ("Bob", 21, "Coimbatore", "XYZ College")
+combined_info = member1 + member2
 
-CREATE TABLE IF NOT EXISTS department (
-    dept_id INT PRIMARY KEY,
-    dept_name VARCHAR(50) NOT NULL,
-    location VARCHAR(50)
-);
-
-CREATE TABLE IF NOT EXISTS employee (
-    emp_id INT PRIMARY KEY,
-    emp_name VARCHAR(50) NOT NULL,
-    salary DECIMAL(10,2),
-    dept_id INT,
-    FOREIGN KEY (dept_id) REFERENCES department(dept_id)
-);
-
-INSERT IGNORE INTO department VALUES
-(1, 'CSE', 'Block A'),
-(2, 'ECE', 'Block B'),
-(3, 'IT', 'Block C'),
-(4, 'EEE', 'Block D');
-
-INSERT IGNORE INTO employee VALUES
-(101, 'Arun', 50000, 1),
-(102, 'Priya', 55000, 2),
-(103, 'Kumar', 60000, 1),
-(104, 'Divya', 65000, 3);
-
-SELECT e.emp_name, d.dept_name
-FROM employee e
-NATURAL JOIN department d;
-
-SELECT e.emp_id, e.emp_name, e.salary, d.dept_name
-FROM employee e
-JOIN department d ON e.dept_id = d.dept_id;
-
-SELECT d.dept_name, e.emp_name
-FROM department d
-LEFT JOIN employee e ON d.dept_id = e.dept_id;
-
-SELECT e.emp_id, e.emp_name, d.dept_name
-FROM department d
-RIGHT JOIN employee e ON d.dept_id = e.dept_id;
-
-SELECT e.emp_id, e.emp_name, d.dept_name
-FROM employee e
-LEFT JOIN department d ON e.dept_id = d.dept_id
-UNION
-SELECT e.emp_id, e.emp_name, d.dept_name
-FROM employee e
-RIGHT JOIN department d ON e.dept_id = d.dept_id;`
+print("Combined Member Details:\\n")
+print("Member 1:")
+print("Name:", member1[0])
+print("Age:", member1[1])
+print("Address:", member1[2])
+print("College:", member1[3])
+print()
+print("Member 2:")
+print("Name:", member2[0])
+print("Age:", member2[1])
+print("Address:", member2[2])
+print("College:", member2[3])
+print()
+print("Concatenated Tuple:")
+print(combined_info)`
             },
             "6": {
                 id: "6",
-                title: "Question 6: Functions and Stored Procedures",
-                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
-USE dbms_lab;
+                title: "Ex 6: Sort list of strings based on vowel count",
+                code: `def count_vowels(word):
+    vowels = "aeiouAEIOU"
+    count = 0
+    for char in word:
+        if char in vowels:
+            count += 1
+    return count
 
-CREATE TABLE IF NOT EXISTS department (
-    dept_id INT PRIMARY KEY,
-    dept_name VARCHAR(50) NOT NULL,
-    location VARCHAR(50)
-);
-
-CREATE TABLE IF NOT EXISTS employee (
-    emp_id INT PRIMARY KEY,
-    emp_name VARCHAR(50) NOT NULL,
-    salary DECIMAL(10,2),
-    dept_id INT,
-    FOREIGN KEY (dept_id) REFERENCES department(dept_id)
-);
-
-INSERT IGNORE INTO department VALUES
-(1, 'CSE', 'Block A'),
-(2, 'ECE', 'Block B'),
-(3, 'IT', 'Block C'),
-(4, 'EEE', 'Block D');
-
-INSERT IGNORE INTO employee VALUES
-(101, 'Arun', 50000, 1),
-(102, 'Priya', 55000, 2),
-(103, 'Kumar', 60000, 1),
-(104, 'Divya', 65000, 3);
-
-DELIMITER //
-CREATE FUNCTION annual_salary(monthly_salary DECIMAL(10,2))
-RETURNS DECIMAL(12,2) DETERMINISTIC
-BEGIN
-    RETURN monthly_salary * 12;
-END //
-DELIMITER ;
-
-SELECT emp_name, salary, annual_salary(salary) AS yearly_salary FROM employee;
-
-DELIMITER //
-CREATE FUNCTION bonus_status(emp_salary DECIMAL(10,2))
-RETURNS VARCHAR(20) DETERMINISTIC
-BEGIN
-    IF emp_salary >= 50000 THEN
-        RETURN 'Eligible';
-    ELSE
-        RETURN 'Not Eligible';
-    END IF;
-END //
-DELIMITER ;
-
-SELECT emp_name, salary, bonus_status(salary) AS bonus FROM employee;
-
-DELIMITER //
-CREATE PROCEDURE get_employee(IN id INT)
-BEGIN
-    SELECT * FROM employee WHERE emp_id = id;
-END //
-DELIMITER ;
-
-CALL get_employee(101);
-
-DELIMITER //
-CREATE PROCEDURE update_salary(IN id INT, IN new_salary DECIMAL(10,2))
-BEGIN
-    UPDATE employee SET salary = new_salary WHERE emp_id = id;
-END //
-DELIMITER ;
-
-CALL update_salary(101, 70000);
-SELECT * FROM employee WHERE emp_id = 101;`
+words = ["banana", "apple", "grape", "orange", "kiwi"]
+sorted_words = sorted(words, key=count_vowels)
+print("Sorted list based on vowel count:")
+print(sorted_words)`
             },
-            "7": {
-                id: "7",
-                title: "Question 7: TCL and DCL Commands",
-                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
-USE dbms_lab;
+            "7a": {
+                id: "7a",
+                title: "Ex 7.a: Check if a key exists in a dictionary",
+                code: `student = {
+    "name": "John",
+    "age": 21,
+    "course": "B.Sc",
+    "year": 3
+}
 
-CREATE TABLE account (
-    account_no INT PRIMARY KEY,
-    account_holder VARCHAR(50),
-    balance DECIMAL(10, 2)
-);
+key_to_check = input("Enter the key to check: ")
+if key_to_check in student:
+    print("Key exists in the dictionary.")
+else:
+    print("Key does not exist in the dictionary.")`
+            },
+            "7b": {
+                id: "7b",
+                title: "Ex 7.b: Add a new key-value pair to a dictionary",
+                code: `student = {
+    "name": "John",
+    "age": 21,
+    "course": "B.Sc"
+}
 
-INSERT INTO account VALUES (1001, 'Arun', 10000), (1002, 'Priya', 15000);
+print("Before adding new key-value pair:")
+print(student)
 
-START TRANSACTION;
-UPDATE account SET balance = balance - 2000 WHERE account_no = 1001;
-UPDATE account SET balance = balance + 2000 WHERE account_no = 1002;
-COMMIT;
-SELECT * FROM account;
+student["year"] = 3
 
-START TRANSACTION;
-UPDATE account SET balance = balance - 5000 WHERE account_no = 1001;
-ROLLBACK;
-SELECT * FROM account;
-
-START TRANSACTION;
-UPDATE account SET balance = balance - 1000 WHERE account_no = 1001;
-SAVEPOINT sp1;
-UPDATE account SET balance = balance + 1000 WHERE account_no = 1002;
-ROLLBACK TO SAVEPOINT sp1;
-COMMIT;
-SELECT * FROM account;
-
-GRANT SELECT ON employee TO labuser;
-REVOKE SELECT ON employee FROM labuser;`
+print("\\nAfter adding new key-value pair:")
+print(student)`
             },
             "8": {
                 id: "8",
-                title: "Question 8: Database Triggers for Auditing",
-                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
-USE dbms_lab;
+                title: "Ex 8: Identify most frequent words in a text file",
+                code: `file = open("sample.txt", "r")
+text = file.read()
+file.close()
 
-CREATE TABLE IF NOT EXISTS department (
-    dept_id INT PRIMARY KEY,
-    dept_name VARCHAR(50) NOT NULL,
-    location VARCHAR(50)
-);
+words = text.split()
+freq = {}
+for word in words:
+    if word in freq:
+        freq[word] += 1
+    else:
+        freq[word] = 1
 
-CREATE TABLE IF NOT EXISTS employee (
-    emp_id INT PRIMARY KEY,
-    emp_name VARCHAR(50) NOT NULL,
-    salary DECIMAL(10,2),
-    dept_id INT,
-    FOREIGN KEY (dept_id) REFERENCES department(dept_id)
-);
+max_count = 0
+most_frequent = ""
+for word in freq:
+    if freq[word] > max_count:
+        max_count = freq[word]
+        most_frequent = word
 
-INSERT IGNORE INTO department VALUES
-(1, 'CSE', 'Block A'),
-(2, 'ECE', 'Block B'),
-(3, 'IT', 'Block C'),
-(4, 'EEE', 'Block D');
-
-INSERT IGNORE INTO employee VALUES
-(101, 'Arun', 50000, 1),
-(102, 'Priya', 55000, 2),
-(103, 'Kumar', 60000, 1),
-(104, 'Divya', 65000, 3);
-
-CREATE TABLE employee_audit (
-    audit_id INT AUTO_INCREMENT PRIMARY KEY,
-    emp_id INT,
-    operation VARCHAR(20),
-    operation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-DELIMITER //
-CREATE TRIGGER employee_insert
-AFTER INSERT ON employee
-FOR EACH ROW
-BEGIN
-    INSERT INTO employee_audit(emp_id, operation) VALUES (NEW.emp_id, 'INSERT');
-END //
-DELIMITER ;
-
-DELIMITER //
-CREATE TRIGGER employee_update
-AFTER UPDATE ON employee
-FOR EACH ROW
-BEGIN
-    INSERT INTO employee_audit(emp_id, operation) VALUES (NEW.emp_id, 'UPDATE');
-END //
-DELIMITER ;
-
-DELIMITER //
-CREATE TRIGGER employee_delete
-AFTER DELETE ON employee
-FOR EACH ROW
-BEGIN
-    INSERT INTO employee_audit(emp_id, operation) VALUES (OLD.emp_id, 'DELETE');
-END //
-DELIMITER ;
-
-INSERT INTO employee VALUES (105, 'Ravi', 45000, 4);
-UPDATE employee SET salary = 50000 WHERE emp_id = 105;
-DELETE FROM employee WHERE emp_id = 105;
-SELECT * FROM employee_audit;`
+print("Most frequent word:", most_frequent)
+print("Frequency:", max_count)`
             },
             "9": {
                 id: "9",
-                title: "Question 9: Views and Indexes",
-                sql: `CREATE DATABASE IF NOT EXISTS dbms_lab;
-USE dbms_lab;
+                title: "Ex 9: Class with BMI calculation",
+                code: `class Person:
+    def __init__(self, name, age, weight, height):
+        self.name = name
+        self.age = age
+        self.weight = weight
+        self.height = height
 
-CREATE TABLE IF NOT EXISTS department (
-    dept_id INT PRIMARY KEY,
-    dept_name VARCHAR(50) NOT NULL,
-    location VARCHAR(50)
-);
+    def get_bmi_result(self):
+        height_m = self.height * 0.3048
+        bmi = self.weight / (height_m ** 2)
+        if bmi < 18.5:
+            return "Underweight"
+        elif 18.5 <= bmi < 25:
+            return "Healthy"
+        else:
+            return "Obesity"
 
-CREATE TABLE IF NOT EXISTS employee (
-    emp_id INT PRIMARY KEY,
-    emp_name VARCHAR(50) NOT NULL,
-    salary DECIMAL(10,2),
-    dept_id INT,
-    FOREIGN KEY (dept_id) REFERENCES department(dept_id)
-);
+person1 = Person("John", 25, 70, 5.5)
+print("BMI Category:", person1.get_bmi_result())`
+            },
+            "10a": {
+                id: "10a",
+                title: "Ex 10.a: Creating NumPy arrays using array()",
+                code: `import numpy as np
 
-INSERT IGNORE INTO department VALUES
-(1, 'CSE', 'Block A'),
-(2, 'ECE', 'Block B'),
-(3, 'IT', 'Block C'),
-(4, 'EEE', 'Block D');
+arr1 = np.array([10, 20, 30, 40])
+print("1D Array:")
+print(arr1)
 
-INSERT IGNORE INTO employee VALUES
-(101, 'Arun', 50000, 1),
-(102, 'Priya', 55000, 2),
-(103, 'Kumar', 60000, 1),
-(104, 'Divya', 65000, 3);
+arr2 = np.array([[1, 2], [3, 4]])
+print("\\n2D Array:")
+print(arr2)`
+            },
+            "10b": {
+                id: "10b",
+                title: "Ex 10.b: Dictionary to Pandas DataFrame and data exploration",
+                code: `import pandas as pd
 
-CREATE VIEW it_employees AS
-SELECT e.emp_id, e.emp_name, e.salary, d.dept_name
-FROM employee e
-JOIN department d ON e.dept_id = d.dept_id
-WHERE d.dept_name = 'IT';
+data = {
+    "Name": ["John", "Emma", "Amit", "Sara", "Ravi", "Nina", "Kiran", "Lina", "Arun", "Priya"],
+    "Age": [22, 23, 21, 22, 24, 23, 22, 21, 24, 23],
+    "Maths": [78, 85, 90, 88, 76, 80, 92, 89, 75, 84],
+    "Science": [80, 89, 85, 87, 77, 90, 86, 88, 76, 82],
+    "English": [75, 80, 78, 82, 79, 77, 85, 81, 74, 83]
+}
 
-SELECT * FROM it_employees;
+df = pd.DataFrame(data)
 
-CREATE VIEW high_salary_employees AS
-SELECT emp_id, emp_name, salary
-FROM employee
-WHERE salary > 50000;
+print("Head of the DataFrame:")
+print(df.head())
 
-SELECT * FROM high_salary_employees;
+print("\\nSelect 'Name' and 'Maths' columns:")
+print(df[["Name", "Maths"]])
 
-CREATE INDEX idx_employee_name ON employee(emp_name);
-CREATE INDEX idx_employee_department ON employee(dept_id);
-SHOW INDEX FROM employee;
+print("\\nSelect rows 0 to 2:")
+print(df[0:3])
 
-DROP INDEX idx_employee_name ON employee;
-DROP VIEW it_employees;`
+print("\\nSelect value at row 2 and column 'English':")
+print(df.at[2, "English"])`
+            },
+            "11a": {
+                id: "11a",
+                title: "Mini Project (Appendix A): app.py",
+                code: `import json
+import os
+import platform
+import subprocess
+from datetime import datetime
+import customtkinter as ctk
+from complaint_categories import (ADDRESSEE_TITLES, CATEGORY_NAMES, COMPLAINT_CATEGORIES,
+                                  ID_PROOF_TYPES, PARENT_RELATION_TYPES, RELATIONS)
+from pdf_generator import compose_letter_text, generate_pdf
+
+ACCENT, OK, ERR = "#2563eb", "#22c55e", "#ef4444"
+BG, CARD, TEXT, MID = "#ffffff", "#f1f5f9", "#0f172a", "#64748b"
+FONT = "Segoe UI"
+SAVE = os.path.join(os.path.expanduser("~"), ".complaint_generator_autosave.json")
+
+STEPS = [
+    ("Your Details", "Tell us about yourself - this appears in the complaint letter.", [
+        ("complainant_name", "Full Name", True, "entry", None),
+        ("parent_relation", "Relation", False, "option", PARENT_RELATION_TYPES),
+        ("parent_guardian_name", "Parent / Spouse / Guardian", False, "entry", None),
+        ("complainant_address", "Address", True, "text", None),
+        ("phone", "Phone Number", True, "entry", None),
+        ("email", "Email (optional)", False, "entry", None),
+        ("id_proof_type", "ID Proof Type", False, "option", ID_PROOF_TYPES),
+        ("id_proof_number", "ID Proof Number", False, "entry", None)]),
+    ("Incident Details", "Describe what happened - date, time, and location.", [
+        ("incident_date", "Date of Incident", True, "entry", None),
+        ("incident_time", "Time (approx.)", False, "entry", None),
+        ("incident_location", "Location of Incident", True, "entry", None),
+        ("category", "Complaint Category", True, "combo", CATEGORY_NAMES),
+        ("narrative", "Detailed Narrative", True, "text", None)]),
+    ("Accused Details", "Optional - fill in if you know details about the accused.", [
+        ("accused_name", "Name of Accused", False, "entry", None),
+        ("accused_address", "Address of Accused", False, "text", None),
+        ("accused_description", "Physical Description", False, "entry", None),
+        ("accused_relation", "Relation to You", False, "option", RELATIONS)]),
+    ("Addressee", "Who should this complaint be addressed to?", [
+        ("addressee_title", "Title / Designation", True, "combo", ADDRESSEE_TITLES),
+        ("station_name", "Police Station / Office Name", True, "entry", None),
+        ("station_address", "Station / Office Address", False, "text", None)]),
+    ("Review & Generate", "Review the letter below. Go back to any step to edit.", []),
+]
+
+ctk.set_appearance_mode("light")
+
+class App(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("Police Complaint Generator")
+        self.geometry("920x700")
+        self.configure(fg_color=BG)
+        self.step, self.data, self.w, self.err, self.vars = 0, {}, {}, {}, {}
+        self._load()
+        self._layout()
+
+    def _layout(self):
+        hdr = ctk.CTkFrame(self, fg_color=CARD, corner_radius=0, height=56)
+        hdr.pack(fill="x")
+        ctk.CTkLabel(hdr, text="Police Complaint Generator", text_color=TEXT,
+                     font=ctk.CTkFont(FONT, 18, "bold")).pack(side="left", padx=20, pady=12)
+        self.lbl_step = ctk.CTkLabel(hdr, text="", text_color=MID)
+        self.lbl_step.pack(side="right", padx=20)
+        bar = ctk.CTkFrame(self, fg_color=BG)
+        bar.pack(fill="x", pady=(8, 0))
+        self.dots = [ctk.CTkButton(bar, text=str(i + 1), width=32, height=32,
+                                   corner_radius=16, command=lambda i=i: self._jump(i))
+                     for i in range(len(STEPS))]
+        for dot in self.dots:
+            dot.pack(side="left", padx=6, pady=4)
+        self.body = ctk.CTkScrollableFrame(self, fg_color=BG)
+        self.body.pack(fill="both", expand=True, padx=24, pady=(8, 4))
+        nav = ctk.CTkFrame(self, fg_color=BG)
+        nav.pack(fill="x", padx=24, pady=(4, 16))
+        self.btn_back = ctk.CTkButton(nav, text="Back", width=120, height=42,
+                                      fg_color=CARD, text_color=TEXT, command=self._back)
+        self.btn_next = ctk.CTkButton(nav, text="Continue", width=160, height=42,
+                                      fg_color=ACCENT, command=self._next)
+        self.btn_back.pack(side="left")
+        self.btn_next.pack(side="right")
+        self._show(self.step)
+
+    def _show(self, i):
+        self.step = i
+        for child in self.body.winfo_children():
+            child.destroy()
+        title, subtitle, fields = STEPS[i]
+        self.w, self.err = {}, {}
+        self._label(title, 20, True)
+        self._label(subtitle, 12, color=MID)
+        for field in fields:
+            widget = self._field(*field)
+            if field[0] == "category":
+                self.sec = ctk.CTkFrame(self.body, fg_color=CARD)
+                self.sec.pack(fill="x", pady=8)
+                widget.configure(command=self._sections)
+                self._sections()
+        if i == len(STEPS) - 1:
+            box = ctk.CTkTextbox(self.body, height=420, fg_color=CARD,
+                                 font=ctk.CTkFont("Consolas", 11))
+            box.insert("1.0", compose_letter_text(self.data))
+            box.configure(state="disabled")
+            box.pack(fill="both", expand=True)
+        for k, dot in enumerate(self.dots):
+            dot.configure(fg_color=ACCENT if k == i else OK if k < i else CARD,
+                          text_color="white" if k <= i else MID)
+        self.lbl_step.configure(text=f"Step {i + 1} of {len(STEPS)} - {title}")
+        last = i == len(STEPS) - 1
+        self.btn_back.configure(state="normal" if i else "disabled")
+        self.btn_next.configure(text="Generate PDF" if last else "Continue",
+                                fg_color=OK if last else ACCENT)
+        self._save()
+
+    def _next(self):
+        if self._validate():
+            self._collect()
+            if self.step < len(STEPS) - 1:
+                self._show(self.step + 1)
+            else:
+                self._generate()
+
+    def _back(self):
+        self._collect()
+        self._show(self.step - 1)
+
+    def _jump(self, i):
+        if i < self.step:
+            self._collect()
+            self._show(i)
+        elif i == self.step + 1:
+            self._next()
+
+    def _label(self, text, size=12, bold=False, color=TEXT, anchor="w"):
+        ctk.CTkLabel(self.body, text=text, text_color=color, wraplength=700,
+                     font=ctk.CTkFont(FONT, size, "bold" if bold else "normal")
+                     ).pack(anchor=anchor, pady=(0, 6))
+
+    def _field(self, key, label, required, kind, options):
+        frame = ctk.CTkFrame(self.body, fg_color="transparent")
+        frame.pack(fill="x", pady=6)
+        ctk.CTkLabel(frame, text=label + (" *" if required else ""), text_color=TEXT,
+                     font=ctk.CTkFont(FONT, 12, "bold")).pack(anchor="w")
+        if kind == "entry":
+            w = ctk.CTkEntry(frame, height=38, fg_color=CARD)
+        elif kind == "text":
+            w = ctk.CTkTextbox(frame, height=70, fg_color=CARD)
+        elif kind == "combo":
+            w = ctk.CTkComboBox(frame, values=options, height=38, fg_color=CARD)
+        else:
+            w = ctk.CTkOptionMenu(frame, values=options, height=38, fg_color=CARD,
+                                  text_color=TEXT)
+        w.pack(fill="x", pady=(4, 0))
+        value = self.data.get(key, options[0] if options else "")
+        if isinstance(w, ctk.CTkTextbox):
+            w.insert("1.0", value)
+        elif isinstance(w, ctk.CTkEntry):
+            w.insert(0, value)
+        else:
+            w.set(value)
+        self.err[key] = ctk.CTkLabel(frame, text="", text_color=ERR)
+        self.err[key].pack(anchor="w")
+        self.w[key] = w
+        return w
+
+    def _sections(self, _choice=None):
+        info = COMPLAINT_CATEGORIES.get(self.w["category"].get(), {})
+        for child in self.sec.winfo_children():
+            child.destroy()
+        ctk.CTkLabel(self.sec, text=info.get("description", ""), text_color=MID
+                     ).pack(anchor="w", padx=12, pady=6)
+        chosen = self.data.get("selected_sections", [])
+        self.vars = {s: ctk.BooleanVar(value=s in chosen)
+                     for s in info.get("sections", [])}
+        for text, var in self.vars.items():
+            ctk.CTkCheckBox(self.sec, text=text, variable=var, text_color=TEXT,
+                            fg_color=ACCENT).pack(anchor="w", padx=20, pady=2)
+
+    @staticmethod
+    def _get(w):
+        return w.get("1.0", "end-1c") if isinstance(w, ctk.CTkTextbox) else w.get()
+
+    def _validate(self):
+        ok = True
+        for key, label, required, *_ in STEPS[self.step][2]:
+            missing = required and not self._get(self.w[key]).strip()
+            self.err[key].configure(text=f"{label} is required" if missing else "")
+            ok = ok and not missing
+        return ok
+
+    def _collect(self):
+        self.data.update({k: self._get(w) for k, w in self.w.items()})
+        if self.step == 1:
+            self.data["selected_sections"] = [s for s, v in self.vars.items() if v.get()]
+
+    def _generate(self):
+        folder = os.path.join(os.path.expanduser("~"), "Downloads")
+        if not os.path.isdir(folder):
+            folder = os.path.expanduser("~")
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        path = os.path.join(folder, f"Complaint_{stamp}.pdf")
+        try:
+            self._success(generate_pdf(self.data, path))
+        except Exception as exc:
+            self._label(f"PDF generation failed: {exc}", color=ERR)
+
+    def _success(self, path):
+        for child in self.body.winfo_children():
+            child.destroy()
+        self._label("✓", 64, color=OK, anchor="center")
+        self._label("PDF Generated Successfully!", 22, True, anchor="center")
+        self._label(f"Saved to: {path}", color=MID, anchor="center")
+        row = ctk.CTkFrame(self.body, fg_color="transparent")
+        row.pack(pady=12)
+        ctk.CTkButton(row, text="Open PDF", width=160, height=42,
+                      command=lambda: self._open(path)).pack(side="left", padx=8)
+        ctk.CTkButton(row, text="Open Folder", width=160, height=42, fg_color=CARD,
+                      text_color=TEXT, command=lambda: self._open(os.path.dirname(path))
+                      ).pack(side="left", padx=8)
+        ctk.CTkButton(self.body, text="Start New Complaint", width=200, height=42,
+                      fg_color="transparent", border_width=1, border_color=ACCENT,
+                      text_color=ACCENT, command=self._reset).pack(pady=12)
+        self.btn_back.pack_forget()
+        self.btn_next.pack_forget()
+
+    @staticmethod
+    def _open(target):
+        target = os.path.normpath(target)
+        if platform.system() == "Windows":
+            os.startfile(target)
+        else:
+            tool = "open" if platform.system() == "Darwin" else "xdg-open"
+            subprocess.Popen([tool, target])
+
+    def _reset(self):
+        self.data, self.step = {}, 0
+        if os.path.exists(SAVE):
+            os.remove(SAVE)
+        for child in self.winfo_children():
+            child.destroy()
+        self._layout()
+
+    def _save(self):
+        try:
+            with open(SAVE, "w", encoding="utf-8") as f:
+                json.dump({"data": self.data, "step": self.step}, f)
+        except OSError:
+            pass
+
+    def _load(self):
+        try:
+            with open(SAVE, encoding="utf-8") as f:
+                saved = json.load(f)
+            self.data, self.step = saved.get("data", {}), saved.get("step", 0)
+        except (OSError, ValueError):
+            pass
+
+if __name__ == "__main__":
+    App().mainloop()`
+            },
+            "11b": {
+                id: "11b",
+                title: "Mini Project (Appendix B): pdf_generator.py",
+                code: `import os
+import re
+from datetime import datetime
+from html import unescape
+from xml.sax.saxutils import escape
+from reportlab.lib.colors import HexColor
+from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT, TA_RIGHT
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.platypus import HRFlowable, Paragraph, SimpleDocTemplate, Spacer
+
+DARK, MID, RULE = HexColor("#1e293b"), HexColor("#475569"), HexColor("#cbd5e1")
+
+def _style(name, **kw):
+    base = dict(fontName="Helvetica", fontSize=10.5, leading=15, textColor=DARK,
+                spaceBefore=4, spaceAfter=4, alignment=TA_JUSTIFY)
+    return ParagraphStyle(name, **{**base, **kw})
+
+STYLES = {
+    "right": _style("right", alignment=TA_RIGHT, spaceBefore=0, spaceAfter=0),
+    "left": _style("left", alignment=TA_LEFT, fontSize=10, leading=14, spaceBefore=0),
+    "body": _style("body"),
+    "bold": _style("bold", fontName="Helvetica-Bold"),
+    "item": _style("item", fontSize=9, leading=12, textColor=MID, leftIndent=12, alignment=TA_LEFT),
+    "sign": _style("sign", fontName="Helvetica-Bold", fontSize=11, spaceBefore=28),
+    "foot": _style("foot", fontName="Helvetica-Oblique", fontSize=7.5, leading=10,
+                   textColor=MID, alignment=TA_CENTER),
+}
+
+def _letter(d):
+    g = lambda k, default="": escape((d.get(k) or default).strip())
+    name, phone = g("complainant_name", "________"), g("phone")
+    place = g("complainant_address").split(",")[-1].strip() or "________"
+    p = [("right", f"Date: {datetime.now():%d %B %Y}"), ("right", f"Place: {place}"),
+         ("gap", 16), ("left", "To,"),
+         ("left", f"<b>{g('addressee_title', 'The Station House Officer')}</b>,")]
+    if g("station_name"):
+        p.append(("left", g("station_name") + ","))
+    if g("station_address"):
+        p.append(("left", g("station_address")))
+    p += [("gap", 10),
+          ("bold", f"Subject: Complaint regarding {g('category', 'General Complaint')}"),
+          ("rule", ""), ("body", "Respected Sir/Madam,")]
+    intro = f"I, <b>{name}</b>"
+    if g("parent_guardian_name"):
+        intro += f", {g('parent_relation', 'S/o')} <b>{g('parent_guardian_name')}</b>"
+    intro += f", a resident of {g('complainant_address', '________')}"
+    if phone:
+        intro += f" (Contact: {phone})"
+    p.append(("body", intro + ", do hereby respectfully submit this complaint "
+                              "for your kind attention and necessary action."))
+    when = f" at approximately <b>{g('incident_time')}</b>" if g("incident_time") else ""
+    p.append(("body", "I wish to bring to your notice the following incident that took "
+                      f"place on <b>{g('incident_date', '________')}</b>{when} at "
+                      f"<b>{g('incident_location', '________')}</b>."))
+    p += [("body", ln.strip()) for ln in g("narrative").splitlines() if ln.strip()]
+    sections = d.get("selected_sections") or []
+    if sections:
+        p.append(("bold", "The above acts may attract the following provisions of law:"))
+        p += [("item", f"• {escape(s)}") for s in sections]
+    if g("accused_name"):
+        p.append(("bold", "Details of the accused / respondent:"))
+        for label, key in (("Name", "accused_name"), ("Address", "accused_address"),
+                           ("Description", "accused_description"),
+                           ("Relation to complainant", "accused_relation")):
+            if g(key):
+                p.append(("item", f"{label}: {g(key)}"))
+    p += [("body", "In view of the above facts and circumstances, I humbly request you "
+                   "to kindly register my complaint, investigate the matter, and take "
+                   "necessary action as per law. I shall be grateful for your prompt "
+                   "intervention."),
+          ("body", "Thanking you,"), ("body", "Yours faithfully,"),
+          ("sign", f"({name})")]
+    for label, key in (("Phone", "phone"), ("Email", "email")):
+        if g(key):
+            p.append(("body", f"{label}: {g(key)}"))
+    if g("id_proof_type") and g("id_proof_number"):
+        p.append(("body", f"ID Proof: {g('id_proof_type')} - {g('id_proof_number')}"))
+    return p
+
+def compose_letter_text(data):
+    out = ""
+    for kind, text in _letter(data):
+        if kind == "gap":
+            out += "\\n"
+        elif kind != "rule":
+            if kind in ("body", "bold", "sign") and not out.endswith("\\n\\n"):
+                out += "\\n"
+            out += unescape(re.sub(r"<[^>]+>", "", text)) + "\\n"
+    return out.strip()
+
+def generate_pdf(data, filepath):
+    story = []
+    for kind, text in _letter(data):
+        if kind == "gap":
+            story.append(Spacer(1, text))
+        elif kind == "rule":
+            story.append(HRFlowable(width="100%", thickness=0.5, color=RULE))
+        else:
+            story.append(Paragraph(text, STYLES[kind]))
+    story += [Spacer(1, 30), HRFlowable(width="100%", thickness=0.3, color=RULE),
+              Paragraph("DISCLAIMER: This document was generated as a drafting aid and "
+                        "does not constitute legal advice. Please review the contents "
+                        "carefully and consult a qualified legal professional before "
+                        "submission.", STYLES["foot"])]
+    SimpleDocTemplate(filepath, pagesize=A4, leftMargin=1.2 * inch,
+                      rightMargin=1.2 * inch, topMargin=inch, bottomMargin=inch,
+                      title="Police Complaint Letter",
+                      author=data.get("complainant_name") or "").build(story)
+    return os.path.abspath(filepath)`
+            },
+            "11c": {
+                id: "11c",
+                title: "Mini Project (Appendix C): complaint_categories.py",
+                code: `COMPLAINT_CATEGORIES = {
+    "Theft / Robbery / Burglary": {
+        "sections": [
+            "IPC Section 379 - Punishment for Theft",
+            "IPC Section 392 - Robbery",
+            "BNS Section 303 - Theft",
+            "BNS Section 305 - Robbery",
+        ],
+        "description": "Theft of property, snatching, robbery, dacoity, housebreaking.",
+    },
+    "Assault / Physical Violence": {
+        "sections": [
+            "IPC Section 323 - Voluntarily Causing Hurt",
+            "IPC Section 325 - Voluntarily Causing Grievous Hurt",
+            "BNS Section 115 - Voluntarily Causing Hurt",
+        ],
+        "description": "Physical assault, causing hurt or grievous hurt.",
+    },
+    "Cheating / Fraud / Forgery": {
+        "sections": [
+            "IPC Section 420 - Cheating and Inducing Delivery of Property",
+            "IPC Section 468 - Forgery for Purpose of Cheating",
+            "BNS Section 318 - Cheating",
+        ],
+        "description": "Financial fraud, cheating, impersonation, forgery.",
+    },
+}
+
+CATEGORY_NAMES = list(COMPLAINT_CATEGORIES)
+
+ADDRESSEE_TITLES = [
+    "Station House Officer (SHO)", "Sub-Inspector of Police", "Inspector of Police",
+    "Deputy Superintendent of Police (DSP)", "Superintendent of Police (SP)",
+    "Commissioner of Police", "Additional Commissioner of Police",
+    "Deputy Commissioner of Police (DCP)", "Judicial Magistrate First Class",
+    "Chief Judicial Magistrate", "District Magistrate / Collector",
+    "Cyber Crime Cell", "Women's Helpline / Women's Cell", "Other (specify)",
+]
+
+ID_PROOF_TYPES = ["", "Aadhaar Card", "Voter ID", "Passport", "Driving License", "PAN Card", "Other"]
+RELATIONS = ["", "Known Person", "Stranger", "Neighbour", "Relative", "Spouse",
+             "Employer / Employee", "Business Associate", "Tenant / Landlord", "Other"]
+PARENT_RELATION_TYPES = ["S/o", "D/o", "W/o", "H/o", "M/o", "C/o"]`
             }
+        };
+
+        // Group mapping so typing "1" outputs both 1a and 1b, etc.
+        const experimentGroups = {
+            "1": ["1a", "1b"],
+            "2": ["2a", "2b"],
+            "3": ["3a", "3b"],
+            "4": ["4a", "4b"],
+            "5": ["5"],
+            "6": ["6"],
+            "7": ["7a", "7b"],
+            "8": ["8"],
+            "9": ["9"],
+            "10": ["10a", "10b"],
+            "11": ["11a", "11b", "11c"],
+            "project": ["11a", "11b", "11c"]
         };
 
         const terminalBody = document.getElementById('terminal-body');
@@ -604,7 +794,7 @@ DROP VIEW it_employees;`
                 .replace(/>/g, "&gt;");
         }
 
-        // Copy raw SQL text reliably inside iframe or browser
+        // Copy raw Python text reliably inside iframe or browser
         function copyTextToClipboard(text, btnElement) {
             const textarea = document.createElement('textarea');
             textarea.value = text;
@@ -630,35 +820,33 @@ DROP VIEW it_employees;`
         }
 
         // Copy by experiment key
-        function copyExperimentSQL(expKey, btnId) {
+        function copyExperimentCode(expKey, btnId) {
             const exp = experiments[expKey];
             if (!exp) return;
             const btn = btnId ? document.getElementById(btnId) : null;
-            copyTextToClipboard(exp.sql, btn);
+            copyTextToClipboard(exp.code, btn);
         }
 
-        // Render classic Windows CMD + MySQL Startup Banner
+        // Render classic Windows CMD + Python Startup Banner
         function renderWelcomeBanner() {
             const bannerHTML = `
                 <div class="text-[#cccccc] whitespace-pre-wrap leading-snug">Microsoft Windows [Version 10.0.19045.5011]
 (c) Microsoft Corporation. All rights reserved.
 
-C:\\Users\\Administrator&gt;mysql -u root -p
-Enter password: ****
-Welcome to the MySQL monitor.  Commands end with ; or \\g.
-Your MySQL connection id is 8
-Server version: 8.0.36 MySQL Community Server - GPL
+C:\\Users\\Administrator&gt;python -i
+Python 3.12.2 (tags/v3.12.2:6abddd9, Feb  6 2024, 21:26:36) [MSC v.1937 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
 
-Type '1' through '9' to display experiment queries, 'ls' to list all experiments, 'cp &lt;num&gt;' to copy, or 'cls' / 'clear' to clear.</div>
+Type '1' through '10' to display experiment programs (both a &amp; b), 'ls' to list all experiments, 'cp &lt;num&gt;' to copy, or 'cls' / 'clear' to clear.</div>
             `;
             appendOutputBlock(bannerHTML);
         }
 
-        // Append echoed mysql> command line
+        // Append echoed >>> command line
         function appendCommandEcho(rawCmd) {
             const cmdLine = document.createElement('div');
             cmdLine.className = "text-[#cccccc] whitespace-pre-wrap pt-1";
-            cmdLine.innerHTML = `mysql&gt; <span class="text-[#ffffff]">${escapeHtml(rawCmd)}</span>`;
+            cmdLine.innerHTML = `&gt;&gt;&gt; <span class="text-[#ffffff]">${escapeHtml(rawCmd)}</span>`;
             terminalBody.appendChild(cmdLine);
         }
 
@@ -674,42 +862,54 @@ Type '1' through '9' to display experiment queries, 'ls' to list all experiments
             terminalBody.scrollTop = terminalBody.scrollHeight;
         }
 
-        // Format Experiment SQL Block strictly in monochrome with minimal [Copy] button
+        // Format Experiment Python Block strictly in monochrome with minimal [Copy] button
         function renderExperimentBlock(expKey) {
             const exp = experiments[expKey];
-            const uniqueBtnId = `copy-btn-${expKey}-${Date.now()}`;
+            const uniqueBtnId = `copy-btn-${expKey}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
             return `
                 <div class="my-1 border border-[#555555] bg-black p-3">
                     <div class="flex items-center justify-between border-b border-[#444444] pb-1.5 mb-2 text-xs sm:text-sm text-[#cccccc]">
-                        <span>-- ${escapeHtml(exp.title)}</span>
+                        <span># ${escapeHtml(exp.title)}</span>
                         <button 
                             id="${uniqueBtnId}"
-                            onclick="copyExperimentSQL('${expKey}', '${uniqueBtnId}')" 
+                            onclick="copyExperimentCode('${expKey}', '${uniqueBtnId}')" 
                             class="text-[#ffffff] hover:bg-[#cccccc] hover:text-black px-1.5 py-0.5 border border-[#777777] text-xs cursor-pointer select-none"
                         >[Copy]</button>
                     </div>
-                    <pre class="text-[#ffffff] text-xs sm:text-sm overflow-x-auto whitespace-pre-wrap leading-relaxed select-all"><code>${escapeHtml(exp.sql)}</code></pre>
+                    <pre class="text-[#ffffff] text-xs sm:text-sm overflow-x-auto whitespace-pre-wrap leading-relaxed select-all"><code>${escapeHtml(exp.code)}</code></pre>
                 </div>
             `;
         }
 
         // Render ASCII Table List of all Experiments
         function renderExperimentList() {
+            const listItems = [
+                ["1", "Ex 1.a & 1.b: Sum of even numbers (1-50) & Return multiple values"],
+                ["2", "Ex 2.a & 2.b: Pattern using loops & Function default arguments"],
+                ["3", "Ex 3.a & 3.b: String length without len() & Substring check"],
+                ["4", "Ex 4.a & 4.b: List operations & Built-in functions on a list"],
+                ["5", "Ex 5: Represent and concatenate tuples"],
+                ["6", "Ex 6: Sort list of strings based on vowel count"],
+                ["7", "Ex 7.a & 7.b: Check key in dictionary & Add key-value pair"],
+                ["8", "Ex 8: Identify most frequent words in a text file"],
+                ["9", "Ex 9: Class with BMI calculation"],
+                ["10", "Ex 10.a & 10.b: Creating NumPy arrays & Pandas DataFrame"],
+                ["11", "Mini Project: Police Complaint Generator (app, pdf, categories)"]
+            ];
+
             let rows = '';
-            Object.keys(experiments).forEach(key => {
-                const exp = experiments[key];
-                const paddedKey = key.padEnd(4, ' ');
-                const paddedTitle = exp.title.padEnd(60, ' ');
+            listItems.forEach(([cmd, title]) => {
+                const paddedKey = cmd.padEnd(4, ' ');
+                const paddedTitle = title.padEnd(64, ' ');
                 rows += `| ${paddedKey} | ${escapeHtml(paddedTitle)} |\n`;
             });
 
             return `
-                <pre class="text-[#cccccc] text-xs sm:text-sm overflow-x-auto leading-snug">+------+--------------------------------------------------------------+
-| Cmd  | Experiment Title                                             |
-+------+--------------------------------------------------------------+
-${rows}+------+--------------------------------------------------------------+
-10 rows in set (0.00 sec)
-Commands: type 1-9 to view SQL, cp &lt;1-9&gt; to copy SQL, cls to clear.</pre>
+                <pre class="text-[#cccccc] text-xs sm:text-sm overflow-x-auto leading-snug">+------+------------------------------------------------------------------+
+| Cmd  | Experiment Title                                                 |
++------+------------------------------------------------------------------+
+${rows}+------+------------------------------------------------------------------+
+Commands: type 1-10 (or 1a, 1b...) to view code, cp &lt;num&gt; to copy, cls to clear.</pre>
             `;
         }
 
@@ -723,8 +923,13 @@ Commands: type 1-9 to view SQL, cp &lt;1-9&gt; to copy SQL, cls to clear.</pre>
 2. Open https://app.netlify.com/drop in your browser.
 3. Drag and drop the folder onto the page.
 4. Go to Site Configuration -> Change site name -> set an easy name
-   such as: mysqllab.netlify.app</pre>
+   such as: pythonlab.netlify.app</pre>
             `;
+        }
+
+        // Normalize key (e.g., "1.a" -> "1a")
+        function normalizeKey(str) {
+            return str.replace(/\./g, '').toLowerCase();
         }
 
         // Main command router
@@ -740,12 +945,13 @@ Commands: type 1-9 to view SQL, cp &lt;1-9&gt; to copy SQL, cls to clear.</pre>
             commandHistory.push(trimmed);
             historyIndex = commandHistory.length;
 
-            // Strip trailing semicolon if user types SQL style like "1;" or "ls;"
+            // Strip trailing semicolon if user types "1;" or "ls;"
             const cleanInput = trimmed.replace(/;$/, '').trim();
             const lower = cleanInput.toLowerCase();
+            const norm = normalizeKey(lower);
 
             // Clear terminal
-            if (lower === 'clear' || lower === 'cls' || lower === '\\! cls' || lower === 'system cls') {
+            if (lower === 'clear' || lower === 'cls' || lower === 'exit()') {
                 terminalBody.innerHTML = '';
                 return;
             }
@@ -753,46 +959,68 @@ Commands: type 1-9 to view SQL, cp &lt;1-9&gt; to copy SQL, cls to clear.</pre>
             // Echo user command
             appendCommandEcho(trimmed);
 
-            // Check direct experiment number (0-9) or 'setup'
-            if (lower === 'setup') {
-                appendOutputBlock(renderExperimentBlock('0'));
-                return;
-            }
-            if (experiments.hasOwnProperty(lower)) {
-                appendOutputBlock(renderExperimentBlock(lower));
+            // Check grouped experiment number (1-11 or 'project') -> outputs both a & b
+            if (experimentGroups.hasOwnProperty(norm)) {
+                const keys = experimentGroups[norm];
+                const blocksHtml = keys.map(k => renderExperimentBlock(k)).join('');
+                appendOutputBlock(blocksHtml);
                 return;
             }
 
-            // Support "exp 1" or "q1" or "question 1"
-            const expMatch = lower.match(/^(?:exp|experiment|q|question)\s*([0-9])$/);
-            if (expMatch) {
-                appendOutputBlock(renderExperimentBlock(expMatch[1]));
+            // Check individual sub-experiment (1a, 1b, 2a, 2b, 10a, 10b, etc.)
+            if (experiments.hasOwnProperty(norm)) {
+                appendOutputBlock(renderExperimentBlock(norm));
                 return;
+            }
+
+            // Support "exp 1", "q1", "ex 1a", etc.
+            const expMatch = norm.match(/^(?:exp|experiment|ex|q|question)\s*([0-9]{1,2}[abc]?)$/);
+            if (expMatch) {
+                const target = expMatch[1];
+                if (experimentGroups.hasOwnProperty(target)) {
+                    const blocksHtml = experimentGroups[target].map(k => renderExperimentBlock(k)).join('');
+                    appendOutputBlock(blocksHtml);
+                    return;
+                }
+                if (experiments.hasOwnProperty(target)) {
+                    appendOutputBlock(renderExperimentBlock(target));
+                    return;
+                }
             }
 
             // List all experiments
-            if (lower === 'ls' || lower === 'list' || lower === 'dir' || lower === 'help' || lower === '?' || lower === '\\h') {
+            if (lower === 'ls' || lower === 'list' || lower === 'dir' || lower === 'help' || lower === 'help()' || lower === '?') {
                 appendOutputBlock(renderExperimentList());
                 return;
             }
 
-            // Copy command: "copy <0-9>" or "cp <0-9>"
-            const copyMatch = lower.match(/^(?:copy|cp)\s+([0-9]|setup)$/);
+            // Copy command: "copy <1-11>" or "cp <1a>"
+            const copyMatch = lower.match(/^(?:copy|cp)\s+([0-9]{1,2}\.?[abc]?|project)$/);
             if (copyMatch) {
-                const targetKey = copyMatch[1] === 'setup' ? '0' : copyMatch[1];
-                const exp = experiments[targetKey];
-                const ok = copyTextToClipboard(exp.sql, null);
-                if (ok) {
-                    appendOutputBlock(`<div class="text-[#cccccc]">Query copied to clipboard.</div>`);
+                const targetKey = normalizeKey(copyMatch[1]);
+                if (experimentGroups.hasOwnProperty(targetKey)) {
+                    const combinedCode = experimentGroups[targetKey].map(k => `# ${experiments[k].title}\n${experiments[k].code}`).join('\n\n');
+                    const ok = copyTextToClipboard(combinedCode, null);
+                    if (ok) {
+                        appendOutputBlock(`<div class="text-[#cccccc]">Program(s) copied to clipboard.</div>`);
+                    }
+                    return;
                 }
-                return;
+                if (experiments.hasOwnProperty(targetKey)) {
+                    const ok = copyTextToClipboard(experiments[targetKey].code, null);
+                    if (ok) {
+                        appendOutputBlock(`<div class="text-[#cccccc]">Program copied to clipboard.</div>`);
+                    }
+                    return;
+                }
             }
 
-            // All experiments at once
+            // All experiments at once (1 to 10)
             if (lower === 'all') {
-                Object.keys(experiments).forEach(k => {
-                    if (k !== '0') appendOutputBlock(renderExperimentBlock(k));
-                });
+                for (let i = 1; i <= 10; i++) {
+                    const keys = experimentGroups[String(i)];
+                    keys.forEach(k => appendOutputBlock(renderExperimentBlock(k)));
+                }
                 return;
             }
 
@@ -802,9 +1030,11 @@ Commands: type 1-9 to view SQL, cp &lt;1-9&gt; to copy SQL, cls to clear.</pre>
                 return;
             }
 
-            // Unknown command fallback mimicking MySQL syntax error
+            // Unknown command fallback mimicking Python NameError / SyntaxError
             appendOutputBlock(`
-                <div class="text-[#cccccc] whitespace-pre-wrap">ERROR 1064 (42000): You have an error in your SQL syntax; type '1'-'9' for experiment queries, 'ls' to list, 'cp &lt;num&gt;' to copy, or 'cls' to clear.</div>
+                <div class="text-[#cccccc] whitespace-pre-wrap">Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+NameError: name '${escapeHtml(trimmed)}' is not defined. Type '1'-'10' for programs, 'ls' to list, 'cp &lt;num&gt;' to copy, or 'cls' to clear.</div>
             `);
         }
 
@@ -841,7 +1071,7 @@ Commands: type 1-9 to view SQL, cp &lt;1-9&gt; to copy SQL, cls to clear.</pre>
             }
         });
 
-        // Keep input focused when clicking terminal background unless selecting SQL text
+        // Keep input focused when clicking terminal background unless selecting code text
         function focusInputIfNotSelecting() {
             const selection = window.getSelection();
             if (!selection || selection.toString().length === 0) {
