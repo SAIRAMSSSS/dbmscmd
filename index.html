@@ -60,10 +60,10 @@
         <div class="bg-[#ffffff] text-[#000000] h-8 px-2 flex items-center justify-between shrink-0 select-none border-b border-[#cccccc]">
             <div class="flex items-center space-x-2 text-xs">
                 <span class="bg-black text-white px-1 font-bold text-[10px] leading-4 border border-black">C:\_</span>
-                <span class="font-normal tracking-tight">Command Prompt - python -i</span>
+                <span id="title-bar-text" class="font-normal tracking-tight">Command Prompt - python -i [SET 1]</span>
             </div>
             <div class="flex items-center h-full">
-                <button onclick="executeCommand('ls')" title="List Experiments" class="win-btn h-full px-4 text-xs flex items-center justify-center transition">_</button>
+                <button onclick="executeCommand('ls')" title="List Questions" class="win-btn h-full px-4 text-xs flex items-center justify-center transition">_</button>
                 <button onclick="executeCommand('host')" title="Hosting Guide" class="win-btn h-full px-4 text-xs flex items-center justify-center transition">□</button>
                 <button onclick="executeCommand('cls')" title="Clear Screen" class="win-close h-full px-4 text-xs flex items-center justify-center font-bold transition">✕</button>
             </div>
@@ -76,7 +76,7 @@
 
         <!-- Active >>> Prompt Line Fixed at Bottom -->
         <div class="bg-black px-3 sm:px-4 pb-3 pt-1 flex items-center shrink-0" onclick="focusInputIfNotSelecting()">
-            <label for="cmd-input" class="text-[#cccccc] text-sm sm:text-base shrink-0 select-none mr-2">&gt;&gt;&gt;</label>
+            <label id="prompt-label" for="cmd-input" class="text-[#cccccc] text-sm sm:text-base shrink-0 select-none mr-2">&gt;&gt;&gt;</label>
             <input 
                 id="cmd-input" 
                 type="text" 
@@ -91,702 +91,2034 @@
     </div>
 
     <script>
-        // Clean Python Programs Repository (Strictly ONLY the Python code, all OCR issues resolved)
-        const experiments = {
-            "1a": {
-                id: "1a",
-                title: "Ex 1.a: Sum of even numbers from 1 to 50",
-                code: `sum = 0
-for num in range(1, 51):
-    if num % 2 == 0:
-        sum += num
-print("Sum of even numbers from 1 to 50 is:", sum)`
-            },
-            "1b": {
-                id: "1b",
-                title: "Ex 1.b: Python function that returns multiple values",
-                code: `def calculate(a, b):
-    sum_result = a + b
-    diff_result = a - b
-    return sum_result, diff_result
+        let currentSet = "s1"; // Default active set: Set 1 ("s1" or "s2")
 
-x = 10
-y = 5
-sum_val, diff_val = calculate(x, y)
-print("Sum:", sum_val)
-print("Difference:", diff_val)`
-            },
-            "2a": {
-                id: "2a",
-                title: "Ex 2.a: Pattern generation using loops",
-                code: `rows = 5
-for i in range(1, rows + 1):
-    for j in range(i):
-        print("*", end="")
-    print()`
-            },
-            "2b": {
-                id: "2b",
-                title: "Ex 2.b: Python function with default arguments",
-                code: `def area(length, width=10):
-    return length * width
+        // Complete Data Structures in Python Repository (Set 1 & Set 2, Questions 1 to 10, i & ii)
+        const setsData = {
+            s1: {
+                name: "SET 1 (Pages 1 & 2)",
+                experiments: {
+                    "1a": {
+                        id: "1a",
+                        title: "Set 1 - Q1 (i): Basic Operations of a Stack Using an Array Implementation",
+                        code: `class ArrayStack:
+    def __init__(self, capacity=5):
+        self.stack = []
+        self.capacity = capacity
 
-print("Area 1:", area(5, 4))
-print("Area 2:", area(7))`
-            },
-            "3a": {
-                id: "3a",
-                title: "Ex 3.a: Find length of a string without using built-in functions",
-                code: `text = "Hello Python"
-count = 0
-for char in text:
-    count += 1
-print("The length of the string is:", count)`
-            },
-            "3b": {
-                id: "3b",
-                title: "Ex 3.b: Check whether a substring exists within a string",
-                code: `main_string = input("Enter the main string: ")
-substring = input("Enter the substring to search: ")
-if substring in main_string:
-    print("Substring found in the main string.")
-else:
-    print("Substring not found in the main string.")`
-            },
-            "4a": {
-                id: "4a",
-                title: "Ex 4.a: Perform operations on a list",
-                code: `my_list = [10, 20, 30]
-print("Initial List:", my_list)
-
-my_list.append(40)
-my_list.append(50)
-print("After Appending:", my_list)
-
-my_list.insert(2, 25)
-print("After Inserting 25 at index 2:", my_list)
-
-print("Sliced List [1:4]:", my_list[1:4])
-print("Sliced List [:-1]:", my_list[:-1])`
-            },
-            "4b": {
-                id: "4b",
-                title: "Ex 4.b: Apply built-in functions on a list",
-                code: `numbers = [15, 42, 7, 29, 3]
-print("Original List:", numbers)
-print("Length of the list:", len(numbers))
-print("Maximum value:", max(numbers))
-print("Minimum value:", min(numbers))
-print("Sum of elements:", sum(numbers))
-print("Sorted list:", sorted(numbers))`
-            },
-            "5": {
-                id: "5",
-                title: "Ex 5: Represent and concatenate tuples",
-                code: `member1 = ("Alice", 20, "Chennai", "ABC College")
-member2 = ("Bob", 21, "Coimbatore", "XYZ College")
-combined_info = member1 + member2
-
-print("Combined Member Details:\\n")
-print("Member 1:")
-print("Name:", member1[0])
-print("Age:", member1[1])
-print("Address:", member1[2])
-print("College:", member1[3])
-print()
-print("Member 2:")
-print("Name:", member2[0])
-print("Age:", member2[1])
-print("Address:", member2[2])
-print("College:", member2[3])
-print()
-print("Concatenated Tuple:")
-print(combined_info)`
-            },
-            "6": {
-                id: "6",
-                title: "Ex 6: Sort list of strings based on vowel count",
-                code: `def count_vowels(word):
-    vowels = "aeiouAEIOU"
-    count = 0
-    for char in word:
-        if char in vowels:
-            count += 1
-    return count
-
-words = ["banana", "apple", "grape", "orange", "kiwi"]
-sorted_words = sorted(words, key=count_vowels)
-print("Sorted list based on vowel count:")
-print(sorted_words)`
-            },
-            "7a": {
-                id: "7a",
-                title: "Ex 7.a: Check if a key exists in a dictionary",
-                code: `student = {
-    "name": "John",
-    "age": 21,
-    "course": "B.Sc",
-    "year": 3
-}
-
-key_to_check = input("Enter the key to check: ")
-if key_to_check in student:
-    print("Key exists in the dictionary.")
-else:
-    print("Key does not exist in the dictionary.")`
-            },
-            "7b": {
-                id: "7b",
-                title: "Ex 7.b: Add a new key-value pair to a dictionary",
-                code: `student = {
-    "name": "John",
-    "age": 21,
-    "course": "B.Sc"
-}
-
-print("Before adding new key-value pair:")
-print(student)
-
-student["year"] = 3
-
-print("\\nAfter adding new key-value pair:")
-print(student)`
-            },
-            "8": {
-                id: "8",
-                title: "Ex 8: Identify most frequent words in a text file",
-                code: `file = open("sample.txt", "r")
-text = file.read()
-file.close()
-
-words = text.split()
-freq = {}
-for word in words:
-    if word in freq:
-        freq[word] += 1
-    else:
-        freq[word] = 1
-
-max_count = 0
-most_frequent = ""
-for word in freq:
-    if freq[word] > max_count:
-        max_count = freq[word]
-        most_frequent = word
-
-print("Most frequent word:", most_frequent)
-print("Frequency:", max_count)`
-            },
-            "9": {
-                id: "9",
-                title: "Ex 9: Class with BMI calculation",
-                code: `class Person:
-    def __init__(self, name, age, weight, height):
-        self.name = name
-        self.age = age
-        self.weight = weight
-        self.height = height
-
-    def get_bmi_result(self):
-        height_m = self.height * 0.3048
-        bmi = self.weight / (height_m ** 2)
-        if bmi < 18.5:
-            return "Underweight"
-        elif 18.5 <= bmi < 25:
-            return "Healthy"
+    def push(self, item):
+        if len(self.stack) == self.capacity:
+            print("Stack Overflow!")
         else:
-            return "Obesity"
+            self.stack.append(item)
+            print(f"Pushed: {item}")
 
-person1 = Person("John", 25, 70, 5.5)
-print("BMI Category:", person1.get_bmi_result())`
-            },
-            "10a": {
-                id: "10a",
-                title: "Ex 10.a: Creating NumPy arrays using array()",
-                code: `import numpy as np
+    def pop(self):
+        if not self.stack:
+            print("Stack Underflow!")
+            return None
+        return self.stack.pop()
 
-arr1 = np.array([10, 20, 30, 40])
-print("1D Array:")
-print(arr1)
+    def peek(self):
+        return self.stack[-1] if self.stack else "Stack is Empty"
 
-arr2 = np.array([[1, 2], [3, 4]])
-print("\\n2D Array:")
-print(arr2)`
-            },
-            "10b": {
-                id: "10b",
-                title: "Ex 10.b: Dictionary to Pandas DataFrame and data exploration",
-                code: `import pandas as pd
+    def display(self):
+        print("Stack (Bottom -> Top):", self.stack)
 
-data = {
-    "Name": ["John", "Emma", "Amit", "Sara", "Ravi", "Nina", "Kiran", "Lina", "Arun", "Priya"],
-    "Age": [22, 23, 21, 22, 24, 23, 22, 21, 24, 23],
-    "Maths": [78, 85, 90, 88, 76, 80, 92, 89, 75, 84],
-    "Science": [80, 89, 85, 87, 77, 90, 86, 88, 76, 82],
-    "English": [75, 80, 78, 82, 79, 77, 85, 81, 74, 83]
-}
-
-df = pd.DataFrame(data)
-
-print("Head of the DataFrame:")
-print(df.head())
-
-print("\\nSelect 'Name' and 'Maths' columns:")
-print(df[["Name", "Maths"]])
-
-print("\\nSelect rows 0 to 2:")
-print(df[0:3])
-
-print("\\nSelect value at row 2 and column 'English':")
-print(df.at[2, "English"])`
-            },
-            "11a": {
-                id: "11a",
-                title: "Mini Project (Appendix A): app.py",
-                code: `import json
-import os
-import platform
-import subprocess
-from datetime import datetime
-import customtkinter as ctk
-from complaint_categories import (ADDRESSEE_TITLES, CATEGORY_NAMES, COMPLAINT_CATEGORIES,
-                                  ID_PROOF_TYPES, PARENT_RELATION_TYPES, RELATIONS)
-from pdf_generator import compose_letter_text, generate_pdf
-
-ACCENT, OK, ERR = "#2563eb", "#22c55e", "#ef4444"
-BG, CARD, TEXT, MID = "#ffffff", "#f1f5f9", "#0f172a", "#64748b"
-FONT = "Segoe UI"
-SAVE = os.path.join(os.path.expanduser("~"), ".complaint_generator_autosave.json")
-
-STEPS = [
-    ("Your Details", "Tell us about yourself - this appears in the complaint letter.", [
-        ("complainant_name", "Full Name", True, "entry", None),
-        ("parent_relation", "Relation", False, "option", PARENT_RELATION_TYPES),
-        ("parent_guardian_name", "Parent / Spouse / Guardian", False, "entry", None),
-        ("complainant_address", "Address", True, "text", None),
-        ("phone", "Phone Number", True, "entry", None),
-        ("email", "Email (optional)", False, "entry", None),
-        ("id_proof_type", "ID Proof Type", False, "option", ID_PROOF_TYPES),
-        ("id_proof_number", "ID Proof Number", False, "entry", None)]),
-    ("Incident Details", "Describe what happened - date, time, and location.", [
-        ("incident_date", "Date of Incident", True, "entry", None),
-        ("incident_time", "Time (approx.)", False, "entry", None),
-        ("incident_location", "Location of Incident", True, "entry", None),
-        ("category", "Complaint Category", True, "combo", CATEGORY_NAMES),
-        ("narrative", "Detailed Narrative", True, "text", None)]),
-    ("Accused Details", "Optional - fill in if you know details about the accused.", [
-        ("accused_name", "Name of Accused", False, "entry", None),
-        ("accused_address", "Address of Accused", False, "text", None),
-        ("accused_description", "Physical Description", False, "entry", None),
-        ("accused_relation", "Relation to You", False, "option", RELATIONS)]),
-    ("Addressee", "Who should this complaint be addressed to?", [
-        ("addressee_title", "Title / Designation", True, "combo", ADDRESSEE_TITLES),
-        ("station_name", "Police Station / Office Name", True, "entry", None),
-        ("station_address", "Station / Office Address", False, "text", None)]),
-    ("Review & Generate", "Review the letter below. Go back to any step to edit.", []),
-]
-
-ctk.set_appearance_mode("light")
-
-class App(ctk.CTk):
+s = ArrayStack(3)
+s.push(10); s.push(20); s.display()
+print("Popped:", s.pop())
+print("Top element:", s.peek())`
+                    },
+                    "1b": {
+                        id: "1b",
+                        title: "Set 1 - Q1 (ii): Web Browser Back Navigation Using Stack (Array & Linked List)",
+                        code: `# 1. Array-Based Browser History Stack
+class BrowserArrayStack:
     def __init__(self):
-        super().__init__()
-        self.title("Police Complaint Generator")
-        self.geometry("920x700")
-        self.configure(fg_color=BG)
-        self.step, self.data, self.w, self.err, self.vars = 0, {}, {}, {}, {}
-        self._load()
-        self._layout()
+        self.history = []
 
-    def _layout(self):
-        hdr = ctk.CTkFrame(self, fg_color=CARD, corner_radius=0, height=56)
-        hdr.pack(fill="x")
-        ctk.CTkLabel(hdr, text="Police Complaint Generator", text_color=TEXT,
-                     font=ctk.CTkFont(FONT, 18, "bold")).pack(side="left", padx=20, pady=12)
-        self.lbl_step = ctk.CTkLabel(hdr, text="", text_color=MID)
-        self.lbl_step.pack(side="right", padx=20)
-        bar = ctk.CTkFrame(self, fg_color=BG)
-        bar.pack(fill="x", pady=(8, 0))
-        self.dots = [ctk.CTkButton(bar, text=str(i + 1), width=32, height=32,
-                                   corner_radius=16, command=lambda i=i: self._jump(i))
-                     for i in range(len(STEPS))]
-        for dot in self.dots:
-            dot.pack(side="left", padx=6, pady=4)
-        self.body = ctk.CTkScrollableFrame(self, fg_color=BG)
-        self.body.pack(fill="both", expand=True, padx=24, pady=(8, 4))
-        nav = ctk.CTkFrame(self, fg_color=BG)
-        nav.pack(fill="x", padx=24, pady=(4, 16))
-        self.btn_back = ctk.CTkButton(nav, text="Back", width=120, height=42,
-                                      fg_color=CARD, text_color=TEXT, command=self._back)
-        self.btn_next = ctk.CTkButton(nav, text="Continue", width=160, height=42,
-                                      fg_color=ACCENT, command=self._next)
-        self.btn_back.pack(side="left")
-        self.btn_next.pack(side="right")
-        self._show(self.step)
+    def visit(self, page):
+        self.history.append(page)
+        print(f"Visited: {page}")
 
-    def _show(self, i):
-        self.step = i
-        for child in self.body.winfo_children():
-            child.destroy()
-        title, subtitle, fields = STEPS[i]
-        self.w, self.err = {}, {}
-        self._label(title, 20, True)
-        self._label(subtitle, 12, color=MID)
-        for field in fields:
-            widget = self._field(*field)
-            if field[0] == "category":
-                self.sec = ctk.CTkFrame(self.body, fg_color=CARD)
-                self.sec.pack(fill="x", pady=8)
-                widget.configure(command=self._sections)
-                self._sections()
-        if i == len(STEPS) - 1:
-            box = ctk.CTkTextbox(self.body, height=420, fg_color=CARD,
-                                 font=ctk.CTkFont("Consolas", 11))
-            box.insert("1.0", compose_letter_text(self.data))
-            box.configure(state="disabled")
-            box.pack(fill="both", expand=True)
-        for k, dot in enumerate(self.dots):
-            dot.configure(fg_color=ACCENT if k == i else OK if k < i else CARD,
-                          text_color="white" if k <= i else MID)
-        self.lbl_step.configure(text=f"Step {i + 1} of {len(STEPS)} - {title}")
-        last = i == len(STEPS) - 1
-        self.btn_back.configure(state="normal" if i else "disabled")
-        self.btn_next.configure(text="Generate PDF" if last else "Continue",
-                                fg_color=OK if last else ACCENT)
-        self._save()
+    def back(self):
+        if len(self.history) <= 1:
+            print("Underflow! Cannot go back from the very first page.")
+            return
+        removed = self.history.pop()
+        print(f"Went back from {removed} to {self.current_page()}")
 
-    def _next(self):
-        if self._validate():
-            self._collect()
-            if self.step < len(STEPS) - 1:
-                self._show(self.step + 1)
-            else:
-                self._generate()
+    def current_page(self):
+        return self.history[-1] if self.history else "No page open"
 
-    def _back(self):
-        self._collect()
-        self._show(self.step - 1)
+# 2. Linked-List-Based Browser History Stack
+class Node:
+    def __init__(self, page, next_node=None):
+        self.page = page
+        self.next = next_node
 
-    def _jump(self, i):
-        if i < self.step:
-            self._collect()
-            self._show(i)
-        elif i == self.step + 1:
-            self._next()
+class BrowserLinkedStack:
+    def __init__(self):
+        self.top = None
 
-    def _label(self, text, size=12, bold=False, color=TEXT, anchor="w"):
-        ctk.CTkLabel(self.body, text=text, text_color=color, wraplength=700,
-                     font=ctk.CTkFont(FONT, size, "bold" if bold else "normal")
-                     ).pack(anchor=anchor, pady=(0, 6))
+    def visit(self, page):
+        self.top = Node(page, self.top)
+        print(f"Visited: {page}")
 
-    def _field(self, key, label, required, kind, options):
-        frame = ctk.CTkFrame(self.body, fg_color="transparent")
-        frame.pack(fill="x", pady=6)
-        ctk.CTkLabel(frame, text=label + (" *" if required else ""), text_color=TEXT,
-                     font=ctk.CTkFont(FONT, 12, "bold")).pack(anchor="w")
-        if kind == "entry":
-            w = ctk.CTkEntry(frame, height=38, fg_color=CARD)
-        elif kind == "text":
-            w = ctk.CTkTextbox(frame, height=70, fg_color=CARD)
-        elif kind == "combo":
-            w = ctk.CTkComboBox(frame, values=options, height=38, fg_color=CARD)
+    def back(self):
+        if self.top is None or self.top.next is None:
+            print("Underflow! On the very first page, cannot go back.")
+            return
+        removed = self.top.page
+        self.top = self.top.next
+        print(f"Went back from {removed} to {self.current_page()}")
+
+    def current_page(self):
+        return self.top.page if self.top else "No page open"
+
+print("--- Array Browser Demo ---")
+b1 = BrowserArrayStack()
+b1.visit("google.com")
+b1.visit("python.org")
+b1.back()
+b1.back() # Triggers Underflow on first page
+
+print("\\n--- Linked List Browser Demo ---")
+b2 = BrowserLinkedStack()
+b2.visit("home.html")
+b2.back() # Triggers Underflow on first page`
+                    },
+                    "2a": {
+                        id: "2a",
+                        title: "Set 1 - Q2 (i): Push and Pop Operations in a Stack Using a Linked List",
+                        code: `class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+class LinkedStack:
+    def __init__(self):
+        self.top = None
+
+    def push(self, data):
+        new_node = Node(data)
+        new_node.next = self.top
+        self.top = new_node
+        print(f"Pushed {data}")
+
+    def pop(self):
+        if self.top is None:
+            print("Stack Underflow!")
+            return None
+        popped = self.top.data
+        self.top = self.top.next
+        return popped
+
+st = LinkedStack()
+st.push(100); st.push(200)
+print("Popped:", st.pop())`
+                    },
+                    "2b": {
+                        id: "2b",
+                        title: "Set 1 - Q2 (ii): Office Printer Spooler Using Circular Queue (Array) & Linked List Queue",
+                        code: `# 1. Array-Based Circular Queue Spooler
+class CircularSpooler:
+    def __init__(self, size=3):
+        self.size = size
+        self.q = [None] * size
+        self.front = self.rear = -1
+
+    def add_job(self, job):
+        if (self.rear + 1) % self.size == self.front:
+            print(f"Queue Full! Cannot add '{job}'")
+            return
+        if self.front == -1:
+            self.front = 0
+        self.rear = (self.rear + 1) % self.size
+        self.q[self.rear] = job
+        print(f"Added job: {job}")
+
+    def print_next_job(self):
+        if self.front == -1:
+            print("Queue Empty! No jobs to print.")
+            return
+        job = self.q[self.front]
+        if self.front == self.rear:
+            self.front = self.rear = -1
         else:
-            w = ctk.CTkOptionMenu(frame, values=options, height=38, fg_color=CARD,
-                                  text_color=TEXT)
-        w.pack(fill="x", pady=(4, 0))
-        value = self.data.get(key, options[0] if options else "")
-        if isinstance(w, ctk.CTkTextbox):
-            w.insert("1.0", value)
-        elif isinstance(w, ctk.CTkEntry):
-            w.insert(0, value)
-        else:
-            w.set(value)
-        self.err[key] = ctk.CTkLabel(frame, text="", text_color=ERR)
-        self.err[key].pack(anchor="w")
-        self.w[key] = w
-        return w
+            self.front = (self.front + 1) % self.size
+        print(f"Printing: {job}")
 
-    def _sections(self, _choice=None):
-        info = COMPLAINT_CATEGORIES.get(self.w["category"].get(), {})
-        for child in self.sec.winfo_children():
-            child.destroy()
-        ctk.CTkLabel(self.sec, text=info.get("description", ""), text_color=MID
-                     ).pack(anchor="w", padx=12, pady=6)
-        chosen = self.data.get("selected_sections", [])
-        self.vars = {s: ctk.BooleanVar(value=s in chosen)
-                     for s in info.get("sections", [])}
-        for text, var in self.vars.items():
-            ctk.CTkCheckBox(self.sec, text=text, variable=var, text_color=TEXT,
-                            fg_color=ACCENT).pack(anchor="w", padx=20, pady=2)
+    def display_pending(self):
+        if self.front == -1:
+            print("No pending jobs.")
+            return
+        i = self.front
+        jobs = []
+        while True:
+            jobs.append(self.q[i])
+            if i == self.rear:
+                break
+            i = (i + 1) % self.size
+        print("Pending Jobs:", jobs)
+
+# 2. Linked-List Queue Spooler
+class JobNode:
+    def __init__(self, job):
+        self.job = job
+        self.next = None
+
+class LinkedSpooler:
+    def __init__(self):
+        self.front = self.rear = None
+
+    def add_job(self, job):
+        node = JobNode(job)
+        if not self.rear:
+            self.front = self.rear = node
+        else:
+            self.rear.next = node
+            self.rear = node
+        print(f"Added job: {job}")
+
+    def print_next_job(self):
+        if not self.front:
+            print("Queue Empty! No jobs to print.")
+            return
+        job = self.front.job
+        self.front = self.front.next
+        if not self.front:
+            self.rear = None
+        print(f"Printing: {job}")
+
+    def display_pending(self):
+        curr, jobs = self.front, []
+        while curr:
+            jobs.append(curr.job)
+            curr = curr.next
+        print("Pending Jobs:", jobs if jobs else "None")
+
+print("--- Circular Queue Spooler ---")
+cs = CircularSpooler(3)
+cs.add_job("Doc1.pdf"); cs.add_job("Doc2.pdf"); cs.add_job("Doc3.pdf")
+cs.add_job("Doc4.pdf") # Triggers Queue Full
+cs.display_pending()
+cs.print_next_job()
+cs.display_pending()
+
+print("\\n--- Linked List Spooler ---")
+ls = LinkedSpooler()
+ls.add_job("Report.docx"); ls.add_job("Invoice.pdf")
+ls.display_pending()
+ls.print_next_job()`
+                    },
+                    "3a": {
+                        id: "3a",
+                        title: "Set 1 - Q3 (i): Enqueue and Dequeue Operations of a Queue Using an Array",
+                        code: `class ArrayQueue:
+    def __init__(self):
+        self.queue = []
+
+    def enqueue(self, item):
+        self.queue.append(item)
+        print(f"Enqueued: {item}")
+
+    def dequeue(self):
+        if len(self.queue) == 0:
+            print("Queue Underflow! Queue is empty.")
+            return None
+        removed = self.queue.pop(0)
+        print(f"Dequeued: {removed}")
+        return removed
+
+    def display(self):
+        print("Queue:", self.queue)
+
+q = ArrayQueue()
+q.enqueue(10); q.enqueue(20); q.enqueue(30)
+q.display()
+q.dequeue()
+q.display()`
+                    },
+                    "3b": {
+                        id: "3b",
+                        title: "Set 1 - Q3 (ii): Music App Playlist Using Singly Linked List",
+                        code: `class SongNode:
+    def __init__(self, title):
+        self.title = title
+        self.next = None
+
+class Playlist:
+    def __init__(self):
+        self.head = None
+
+    def add_beginning(self, title):
+        node = SongNode(title)
+        node.next = self.head
+        self.head = node
+
+    def add_end(self, title):
+        node = SongNode(title)
+        if not self.head:
+            self.head = node
+            return
+        curr = self.head
+        while curr.next:
+            curr = curr.next
+        curr.next = node
+
+    def add_after(self, target, title):
+        curr = self.head
+        while curr and curr.title != target:
+            curr = curr.next
+        if curr:
+            node = SongNode(title)
+            node.next = curr.next
+            curr.next = node
+        else:
+            print(f"Song '{target}' not found!")
+
+    def delete_song(self, title):
+        curr, prev = self.head, None
+        while curr and curr.title != title:
+            prev, curr = curr, curr.next
+        if not curr:
+            print(f"Song '{title}' not found!")
+            return
+        if not prev:
+            self.head = curr.next
+        else:
+            prev.next = curr.next
+        print(f"Deleted: {title}")
+
+    def search_song(self, title):
+        curr, pos = self.head, 1
+        while curr:
+            if curr.title == title:
+                print(f"Found '{title}' at position {pos}")
+                return True
+            curr, pos = curr.next, pos + 1
+        print(f"'{title}' not found in playlist.")
+        return False
+
+    def display(self):
+        curr, songs = self.head, []
+        while curr:
+            songs.append(curr.title)
+            curr = curr.next
+        print("Playlist:", " -> ".join(songs) if songs else "Empty")
+
+pl = Playlist()
+pl.add_beginning("Song A")
+pl.add_end("Song C")
+pl.add_after("Song A", "Song B")
+pl.display()
+pl.search_song("Song B")
+pl.delete_song("Song A")
+pl.display()`
+                    },
+                    "4a": {
+                        id: "4a",
+                        title: "Set 1 - Q4 (i): Insert a New Node at the Beginning of a Singly Linked List",
+                        code: `class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+class SinglyLinkedList:
+    def __init__(self):
+        self.head = None
+
+    def insert_at_beginning(self, data):
+        new_node = Node(data)
+        new_node.next = self.head
+        self.head = new_node
+
+    def display(self):
+        curr = self.head
+        while curr:
+            print(curr.data, end=" -> ")
+            curr = curr.next
+        print("None")
+
+sll = SinglyLinkedList()
+sll.insert_at_beginning(30)
+sll.insert_at_beginning(20)
+sll.insert_at_beginning(10)
+sll.display()`
+                    },
+                    "4b": {
+                        id: "4b",
+                        title: "Set 1 - Q4 (ii): College Admission Waiting List Using Singly Linked List",
+                        code: `class StudentNode:
+    def __init__(self, roll, name):
+        self.roll = roll
+        self.name = name
+        self.next = None
+
+class WaitingList:
+    def __init__(self):
+        self.head = None
+
+    def insert_end(self, roll, name):
+        node = StudentNode(roll, name)
+        if not self.head:
+            self.head = node
+            return
+        curr = self.head
+        while curr.next:
+            curr = curr.next
+        curr.next = node
+
+    def delete_first(self):
+        if not self.head:
+            print("List empty!")
+            return
+        print(f"Seat allotted to first student: {self.head.roll} ({self.head.name})")
+        self.head = self.head.next
+
+    def delete_last(self):
+        if not self.head:
+            return
+        if not self.head.next:
+            self.head = None
+            return
+        curr = self.head
+        while curr.next.next:
+            curr = curr.next
+        print(f"Removed last student: {curr.next.roll}")
+        curr.next = None
+
+    def withdraw_by_roll(self, roll):
+        curr, prev = self.head, None
+        while curr and curr.roll != roll:
+            prev, curr = curr, curr.next
+        if not curr:
+            print(f"Roll {roll} not found!")
+            return
+        if not prev:
+            self.head = curr.next
+        else:
+            prev.next = curr.next
+        print(f"Withdrawn Roll: {roll}")
+
+    def reverse_list(self):
+        prev, curr = None, self.head
+        while curr:
+            nxt = curr.next
+            curr.next = prev
+            prev = curr
+            curr = nxt
+        self.head = prev
+
+    def count_students(self):
+        count, curr = 0, self.head
+        while curr:
+            count += 1
+            curr = curr.next
+        return count
+
+    def display(self):
+        curr, res = self.head, []
+        while curr:
+            res.append(f"{curr.roll}:{curr.name}")
+            curr = curr.next
+        print("Waiting List:", " -> ".join(res) if res else "Empty")
+
+wl = WaitingList()
+wl.insert_end(101, "Arun"); wl.insert_end(102, "Bala"); wl.insert_end(103, "Charan")
+wl.display()
+wl.delete_first()
+wl.withdraw_by_roll(102)
+wl.insert_end(104, "Deepak")
+wl.reverse_list()
+wl.display()
+print("Total Waiting:", wl.count_students())`
+                    },
+                    "5a": {
+                        id: "5a",
+                        title: "Set 1 - Q5 (i): Polynomial Manipulation Using Linked List",
+                        code: `class PolyNode:
+    def __init__(self, coeff, exp):
+        self.coeff = coeff
+        self.exp = exp
+        self.next = None
+
+class Polynomial:
+    def __init__(self):
+        self.head = None
+
+    def insert_term(self, coeff, exp):
+        if coeff == 0:
+            return
+        node = PolyNode(coeff, exp)
+        if not self.head or exp > self.head.exp:
+            node.next = self.head
+            self.head = node
+            return
+        curr, prev = self.head, None
+        while curr and curr.exp > exp:
+            prev, curr = curr, curr.next
+        if curr and curr.exp == exp:
+            curr.coeff += coeff
+            if curr.coeff == 0:
+                if prev: prev.next = curr.next
+                else: self.head = curr.next
+        else:
+            node.next = curr
+            prev.next = node
 
     @staticmethod
-    def _get(w):
-        return w.get("1.0", "end-1c") if isinstance(w, ctk.CTkTextbox) else w.get()
+    def add(p1, p2):
+        res = Polynomial()
+        c1, c2 = p1.head, p2.head
+        while c1:
+            res.insert_term(c1.coeff, c1.exp)
+            c1 = c1.next
+        while c2:
+            res.insert_term(c2.coeff, c2.exp)
+            c2 = c2.next
+        return res
 
-    def _validate(self):
-        ok = True
-        for key, label, required, *_ in STEPS[self.step][2]:
-            missing = required and not self._get(self.w[key]).strip()
-            self.err[key].configure(text=f"{label} is required" if missing else "")
-            ok = ok and not missing
-        return ok
+    def evaluate(self, x):
+        total, curr = 0, self.head
+        while curr:
+            total += curr.coeff * (x ** curr.exp)
+            curr = curr.next
+        return total
 
-    def _collect(self):
-        self.data.update({k: self._get(w) for k, w in self.w.items()})
-        if self.step == 1:
-            self.data["selected_sections"] = [s for s, v in self.vars.items() if v.get()]
+    def display(self):
+        curr, terms = self.head, []
+        while curr:
+            terms.append(f"{curr.coeff}x^{curr.exp}" if curr.exp != 0 else f"{curr.coeff}")
+            curr = curr.next
+        print(" + ".join(terms).replace("+ -", "- ") if terms else "0")`
+                    },
+                    "5b": {
+                        id: "5b",
+                        title: "Set 1 - Q5 (ii): Projectile Height Polynomial Addition P1(x)=5x^3+4x^2+2 & P2(x)=3x^2+7x+1",
+                        code: `class PolyNode:
+    def __init__(self, coeff, exp):
+        self.coeff = coeff
+        self.exp = exp
+        self.next = None
 
-    def _generate(self):
-        folder = os.path.join(os.path.expanduser("~"), "Downloads")
-        if not os.path.isdir(folder):
-            folder = os.path.expanduser("~")
-        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        path = os.path.join(folder, f"Complaint_{stamp}.pdf")
-        try:
-            self._success(generate_pdf(self.data, path))
-        except Exception as exc:
-            self._label(f"PDF generation failed: {exc}", color=ERR)
+class Polynomial:
+    def __init__(self):
+        self.head = None
 
-    def _success(self, path):
-        for child in self.body.winfo_children():
-            child.destroy()
-        self._label("✓", 64, color=OK, anchor="center")
-        self._label("PDF Generated Successfully!", 22, True, anchor="center")
-        self._label(f"Saved to: {path}", color=MID, anchor="center")
-        row = ctk.CTkFrame(self.body, fg_color="transparent")
-        row.pack(pady=12)
-        ctk.CTkButton(row, text="Open PDF", width=160, height=42,
-                      command=lambda: self._open(path)).pack(side="left", padx=8)
-        ctk.CTkButton(row, text="Open Folder", width=160, height=42, fg_color=CARD,
-                      text_color=TEXT, command=lambda: self._open(os.path.dirname(path))
-                      ).pack(side="left", padx=8)
-        ctk.CTkButton(self.body, text="Start New Complaint", width=200, height=42,
-                      fg_color="transparent", border_width=1, border_color=ACCENT,
-                      text_color=ACCENT, command=self._reset).pack(pady=12)
-        self.btn_back.pack_forget()
-        self.btn_next.pack_forget()
+    def insert_term(self, coeff, exp):
+        if coeff == 0: return
+        node = PolyNode(coeff, exp)
+        if not self.head or exp > self.head.exp:
+            node.next = self.head
+            self.head = node
+            return
+        curr, prev = self.head, None
+        while curr and curr.exp > exp:
+            prev, curr = curr, curr.next
+        if curr and curr.exp == exp:
+            curr.coeff += coeff
+            if curr.coeff == 0:
+                if prev: prev.next = curr.next
+                else: self.head = curr.next
+        else:
+            node.next = curr
+            prev.next = node
 
     @staticmethod
-    def _open(target):
-        target = os.path.normpath(target)
-        if platform.system() == "Windows":
-            os.startfile(target)
+    def add(p1, p2):
+        res = Polynomial()
+        for p in (p1, p2):
+            curr = p.head
+            while curr:
+                res.insert_term(curr.coeff, curr.exp)
+                curr = curr.next
+        return res
+
+    def display(self):
+        curr, terms = self.head, []
+        while curr:
+            terms.append(f"{curr.coeff}x^{curr.exp}" if curr.exp != 0 else f"{curr.coeff}")
+            curr = curr.next
+        print(" + ".join(terms).replace("+ -", "- ") if terms else "0")
+
+P1 = Polynomial()
+for c, e in [(5, 3), (4, 2), (2, 0)]:
+    P1.insert_term(c, e)
+
+P2 = Polynomial()
+for c, e in [(3, 2), (7, 1), (1, 0)]:
+    P2.insert_term(c, e)
+
+print("P1(x) =", end=" "); P1.display()
+print("P2(x) =", end=" "); P2.display()
+P_sum = Polynomial.add(P1, P2)
+print("Sum P1(x) + P2(x) =", end=" "); P_sum.display()`
+                    },
+                    "6a": {
+                        id: "6a",
+                        title: "Set 1 - Q6 (i): Infix to Postfix Conversion Using Stack",
+                        code: `def infix_to_postfix(expr):
+    prec = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3}
+    stack = []
+    output = []
+    for ch in expr.replace(" ", ""):
+        if ch.isalnum():
+            output.append(ch)
+        elif ch == '(':
+            stack.append(ch)
+        elif ch == ')':
+            while stack and stack[-1] != '(':
+                output.append(stack.pop())
+            stack.pop()
         else:
-            tool = "open" if platform.system() == "Darwin" else "xdg-open"
-            subprocess.Popen([tool, target])
+            while stack and stack[-1] != '(' and prec.get(stack[-1], 0) >= prec[ch]:
+                if ch == '^' and stack[-1] == '^':
+                    break # '^' is right-associative
+                output.append(stack.pop())
+            stack.append(ch)
+    while stack:
+        output.append(stack.pop())
+    return "".join(output)
 
-    def _reset(self):
-        self.data, self.step = {}, 0
-        if os.path.exists(SAVE):
-            os.remove(SAVE)
-        for child in self.winfo_children():
-            child.destroy()
-        self._layout()
+print("Postfix of A+B*C:", infix_to_postfix("A+B*C"))`
+                    },
+                    "6b": {
+                        id: "6b",
+                        title: "Set 1 - Q6 (ii): Multiply Signal Polynomials A(x)=2x^2+3x+1 and B(x)=x+4",
+                        code: `class PolyNode:
+    def __init__(self, coeff, exp):
+        self.coeff = coeff
+        self.exp = exp
+        self.next = None
 
-    def _save(self):
-        try:
-            with open(SAVE, "w", encoding="utf-8") as f:
-                json.dump({"data": self.data, "step": self.step}, f)
-        except OSError:
-            pass
+class Polynomial:
+    def __init__(self):
+        self.head = None
 
-    def _load(self):
-        try:
-            with open(SAVE, encoding="utf-8") as f:
-                saved = json.load(f)
-            self.data, self.step = saved.get("data", {}), saved.get("step", 0)
-        except (OSError, ValueError):
-            pass
-
-if __name__ == "__main__":
-    App().mainloop()`
-            },
-            "11b": {
-                id: "11b",
-                title: "Mini Project (Appendix B): pdf_generator.py",
-                code: `import os
-import re
-from datetime import datetime
-from html import unescape
-from xml.sax.saxutils import escape
-from reportlab.lib.colors import HexColor
-from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT, TA_RIGHT
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import ParagraphStyle
-from reportlab.lib.units import inch
-from reportlab.platypus import HRFlowable, Paragraph, SimpleDocTemplate, Spacer
-
-DARK, MID, RULE = HexColor("#1e293b"), HexColor("#475569"), HexColor("#cbd5e1")
-
-def _style(name, **kw):
-    base = dict(fontName="Helvetica", fontSize=10.5, leading=15, textColor=DARK,
-                spaceBefore=4, spaceAfter=4, alignment=TA_JUSTIFY)
-    return ParagraphStyle(name, **{**base, **kw})
-
-STYLES = {
-    "right": _style("right", alignment=TA_RIGHT, spaceBefore=0, spaceAfter=0),
-    "left": _style("left", alignment=TA_LEFT, fontSize=10, leading=14, spaceBefore=0),
-    "body": _style("body"),
-    "bold": _style("bold", fontName="Helvetica-Bold"),
-    "item": _style("item", fontSize=9, leading=12, textColor=MID, leftIndent=12, alignment=TA_LEFT),
-    "sign": _style("sign", fontName="Helvetica-Bold", fontSize=11, spaceBefore=28),
-    "foot": _style("foot", fontName="Helvetica-Oblique", fontSize=7.5, leading=10,
-                   textColor=MID, alignment=TA_CENTER),
-}
-
-def _letter(d):
-    g = lambda k, default="": escape((d.get(k) or default).strip())
-    name, phone = g("complainant_name", "________"), g("phone")
-    place = g("complainant_address").split(",")[-1].strip() or "________"
-    p = [("right", f"Date: {datetime.now():%d %B %Y}"), ("right", f"Place: {place}"),
-         ("gap", 16), ("left", "To,"),
-         ("left", f"<b>{g('addressee_title', 'The Station House Officer')}</b>,")]
-    if g("station_name"):
-        p.append(("left", g("station_name") + ","))
-    if g("station_address"):
-        p.append(("left", g("station_address")))
-    p += [("gap", 10),
-          ("bold", f"Subject: Complaint regarding {g('category', 'General Complaint')}"),
-          ("rule", ""), ("body", "Respected Sir/Madam,")]
-    intro = f"I, <b>{name}</b>"
-    if g("parent_guardian_name"):
-        intro += f", {g('parent_relation', 'S/o')} <b>{g('parent_guardian_name')}</b>"
-    intro += f", a resident of {g('complainant_address', '________')}"
-    if phone:
-        intro += f" (Contact: {phone})"
-    p.append(("body", intro + ", do hereby respectfully submit this complaint "
-                              "for your kind attention and necessary action."))
-    when = f" at approximately <b>{g('incident_time')}</b>" if g("incident_time") else ""
-    p.append(("body", "I wish to bring to your notice the following incident that took "
-                      f"place on <b>{g('incident_date', '________')}</b>{when} at "
-                      f"<b>{g('incident_location', '________')}</b>."))
-    p += [("body", ln.strip()) for ln in g("narrative").splitlines() if ln.strip()]
-    sections = d.get("selected_sections") or []
-    if sections:
-        p.append(("bold", "The above acts may attract the following provisions of law:"))
-        p += [("item", f"• {escape(s)}") for s in sections]
-    if g("accused_name"):
-        p.append(("bold", "Details of the accused / respondent:"))
-        for label, key in (("Name", "accused_name"), ("Address", "accused_address"),
-                           ("Description", "accused_description"),
-                           ("Relation to complainant", "accused_relation")):
-            if g(key):
-                p.append(("item", f"{label}: {g(key)}"))
-    p += [("body", "In view of the above facts and circumstances, I humbly request you "
-                   "to kindly register my complaint, investigate the matter, and take "
-                   "necessary action as per law. I shall be grateful for your prompt "
-                   "intervention."),
-          ("body", "Thanking you,"), ("body", "Yours faithfully,"),
-          ("sign", f"({name})")]
-    for label, key in (("Phone", "phone"), ("Email", "email")):
-        if g(key):
-            p.append(("body", f"{label}: {g(key)}"))
-    if g("id_proof_type") and g("id_proof_number"):
-        p.append(("body", f"ID Proof: {g('id_proof_type')} - {g('id_proof_number')}"))
-    return p
-
-def compose_letter_text(data):
-    out = ""
-    for kind, text in _letter(data):
-        if kind == "gap":
-            out += "\\n"
-        elif kind != "rule":
-            if kind in ("body", "bold", "sign") and not out.endswith("\\n\\n"):
-                out += "\\n"
-            out += unescape(re.sub(r"<[^>]+>", "", text)) + "\\n"
-    return out.strip()
-
-def generate_pdf(data, filepath):
-    story = []
-    for kind, text in _letter(data):
-        if kind == "gap":
-            story.append(Spacer(1, text))
-        elif kind == "rule":
-            story.append(HRFlowable(width="100%", thickness=0.5, color=RULE))
+    def insert_term(self, coeff, exp):
+        if coeff == 0: return
+        node = PolyNode(coeff, exp)
+        if not self.head or exp > self.head.exp:
+            node.next = self.head
+            self.head = node
+            return
+        curr, prev = self.head, None
+        while curr and curr.exp > exp:
+            prev, curr = curr, curr.next
+        if curr and curr.exp == exp:
+            curr.coeff += coeff
+            if curr.coeff == 0:
+                if prev: prev.next = curr.next
+                else: self.head = curr.next
         else:
-            story.append(Paragraph(text, STYLES[kind]))
-    story += [Spacer(1, 30), HRFlowable(width="100%", thickness=0.3, color=RULE),
-              Paragraph("DISCLAIMER: This document was generated as a drafting aid and "
-                        "does not constitute legal advice. Please review the contents "
-                        "carefully and consult a qualified legal professional before "
-                        "submission.", STYLES["foot"])]
-    SimpleDocTemplate(filepath, pagesize=A4, leftMargin=1.2 * inch,
-                      rightMargin=1.2 * inch, topMargin=inch, bottomMargin=inch,
-                      title="Police Complaint Letter",
-                      author=data.get("complainant_name") or "").build(story)
-    return os.path.abspath(filepath)`
+            node.next = curr
+            prev.next = node
+
+    def evaluate(self, x):
+        total, curr = 0, self.head
+        while curr:
+            total += curr.coeff * (x ** curr.exp)
+            curr = curr.next
+        return total
+
+    def display(self):
+        curr, terms = self.head, []
+        while curr:
+            terms.append(f"{curr.coeff}x^{curr.exp}" if curr.exp != 0 else f"{curr.coeff}")
+            curr = curr.next
+        print(" + ".join(terms).replace("+ -", "- ") if terms else "0")
+
+def multiply_poly(p1, p2):
+    res = Polynomial()
+    c1 = p1.head
+    while c1:
+        c2 = p2.head
+        while c2:
+            res.insert_term(c1.coeff * c2.coeff, c1.exp + c2.exp)
+            c2 = c2.next
+        c1 = c1.next
+    return res
+
+A = Polynomial()
+for c, e in [(2, 2), (3, 1), (1, 0)]: A.insert_term(c, e)
+B = Polynomial()
+for c, e in [(1, 1), (4, 0)]: B.insert_term(c, e)
+
+prod = multiply_poly(A, B)
+print("Product A(x) * B(x) =", end=" "); prod.display()
+x_val = 2
+print(f"Value at x={x_val}:", prod.evaluate(x_val))`
+                    },
+                    "7a": {
+                        id: "7a",
+                        title: "Set 1 - Q7 (i): How Two Polynomials Are Added Using Linked Lists",
+                        code: `def add_polynomials(p1_head, p2_head):
+    res = Polynomial()
+    p1, p2 = p1_head, p2_head
+    while p1 and p2:
+        if p1.exp == p2.exp:
+            res.insert_term(p1.coeff + p2.coeff, p1.exp)
+            p1, p2 = p1.next, p2.next
+        elif p1.exp > p2.exp:
+            res.insert_term(p1.coeff, p1.exp)
+            p1 = p1.next
+        else:
+            res.insert_term(p2.coeff, p2.exp)
+            p2 = p2.next
+    while p1:
+        res.insert_term(p1.coeff, p1.exp)
+        p1 = p1.next
+    while p2:
+        res.insert_term(p2.coeff, p2.exp)
+        p2 = p2.next
+    return res`
+                    },
+                    "7b": {
+                        id: "7b",
+                        title: "Set 1 - Q7 (ii): Calculator App: Convert (8+2)*5-6/3 to Postfix & Evaluate",
+                        code: `import re
+
+def calc_postfix_trace(expr):
+    tokens = re.findall(r'\\d+|[+*/()-]', expr)
+    prec = {'+': 1, '-': 1, '*': 2, '/': 2}
+    stack, postfix = [], []
+    print(f"{'Token':<8} | {'Stack':<15} | {'Postfix Output'}")
+    print("-" * 45)
+    for t in tokens:
+        if t.isdigit():
+            postfix.append(t)
+        elif t == '(':
+            stack.append(t)
+        elif t == ')':
+            while stack and stack[-1] != '(':
+                postfix.append(stack.pop())
+            stack.pop()
+        else:
+            while stack and stack[-1] != '(' and prec.get(stack[-1], 0) >= prec[t]:
+                postfix.append(stack.pop())
+            stack.append(t)
+        print(f"{t:<8} | {' '.join(stack):<15} | {' '.join(postfix)}")
+    while stack:
+        postfix.append(stack.pop())
+    print(f"{'END':<8} | {' '.join(stack):<15} | {' '.join(postfix)}")
+
+    eval_stack = []
+    for t in postfix:
+        if t.isdigit():
+            eval_stack.append(float(t))
+        else:
+            b, a = eval_stack.pop(), eval_stack.pop()
+            if t == '+': eval_stack.append(a + b)
+            elif t == '-': eval_stack.append(a - b)
+            elif t == '*': eval_stack.append(a * b)
+            elif t == '/': eval_stack.append(a / b)
+    print("Final Answer:", eval_stack[0])
+
+calc_postfix_trace("(8+2)*5-6/3")`
+                    },
+                    "8a": {
+                        id: "8a",
+                        title: "Set 1 - Q8 (i): Polynomial Manipulation Using Linked List",
+                        code: `class PolyNode:
+    def __init__(self, coeff, exp):
+        self.coeff = coeff
+        self.exp = exp
+        self.next = None
+
+class Polynomial:
+    def __init__(self):
+        self.head = None
+
+    def insert_term(self, coeff, exp):
+        if coeff == 0: return
+        node = PolyNode(coeff, exp)
+        if not self.head or exp > self.head.exp:
+            node.next = self.head
+            self.head = node
+            return
+        curr, prev = self.head, None
+        while curr and curr.exp > exp:
+            prev, curr = curr, curr.next
+        if curr and curr.exp == exp:
+            curr.coeff += coeff
+            if curr.coeff == 0:
+                if prev: prev.next = curr.next
+                else: self.head = curr.next
+        else:
+            node.next = curr
+            prev.next = node
+
+    @staticmethod
+    def add(p1, p2):
+        res = Polynomial()
+        for p in (p1, p2):
+            curr = p.head
+            while curr:
+                res.insert_term(curr.coeff, curr.exp)
+                curr = curr.next
+        return res
+
+    def display(self):
+        curr, terms = self.head, []
+        while curr:
+            terms.append(f"{curr.coeff}x^{curr.exp}" if curr.exp != 0 else f"{curr.coeff}")
+            curr = curr.next
+        print(" + ".join(terms).replace("+ -", "- ") if terms else "0")`
+                    },
+                    "8b": {
+                        id: "8b",
+                        title: "Set 1 - Q8 (ii): Compiler Front End: Validate Parentheses, Convert A+B*(C-D)^E to Postfix & Evaluate",
+                        code: `def is_balanced(expr):
+    stack = []
+    pairs = {')': '(', ']': '[', '}': '{'}
+    for ch in expr:
+        if ch in '([{':
+            stack.append(ch)
+        elif ch in ')]}':
+            if not stack or stack.pop() != pairs[ch]:
+                return False
+    return len(stack) == 0
+
+def infix_to_postfix(expr):
+    prec = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3}
+    stack, output = [], []
+    for ch in expr.replace(" ", ""):
+        if ch.isalnum():
+            output.append(ch)
+        elif ch == '(':
+            stack.append(ch)
+        elif ch == ')':
+            while stack and stack[-1] != '(':
+                output.append(stack.pop())
+            stack.pop()
+        else:
+            while stack and stack[-1] != '(' and prec.get(stack[-1], 0) >= prec[ch]:
+                if ch == '^' and stack[-1] == '^':
+                    break
+                output.append(stack.pop())
+            stack.append(ch)
+    while stack:
+        output.append(stack.pop())
+    return "".join(output)
+
+def process_compiler_expr(expr, values):
+    if not is_balanced(expr):
+        print("Syntax Error: Unbalanced Parentheses!")
+        return
+    print("Parentheses Balanced: True")
+    postfix = infix_to_postfix(expr)
+    print("Postfix Expression:", postfix)
+    stack = []
+    for ch in postfix:
+        if ch.isalpha():
+            stack.append(values[ch])
+        else:
+            b, a = stack.pop(), stack.pop()
+            if ch == '+': stack.append(a + b)
+            elif ch == '-': stack.append(a - b)
+            elif ch == '*': stack.append(a * b)
+            elif ch == '/': stack.append(a / b)
+            elif ch == '^': stack.append(a ** b)
+    print("Evaluated Result:", stack[0])
+
+vals = {'A': 2, 'B': 3, 'C': 8, 'D': 5, 'E': 2}
+process_compiler_expr("A+B*(C-D)^E", vals)`
+                    },
+                    "9a": {
+                        id: "9a",
+                        title: "Set 1 - Q9 (i): Preorder Traversal of a BST",
+                        code: `class BSTNode:
+    def __init__(self, key):
+        self.key = key
+        self.left = None
+        self.right = None
+
+def insert_bst(root, key):
+    if root is None:
+        return BSTNode(key)
+    if key < root.key:
+        root.left = insert_bst(root.left, key)
+    else:
+        root.right = insert_bst(root.right, key)
+    return root
+
+def preorder(root):
+    if root:
+        print(root.key, end=" ")
+        preorder(root.left)
+        preorder(root.right)
+
+root = None
+for x in [50, 30, 70, 20, 40]:
+    root = insert_bst(root, x)
+print("Preorder Traversal of BST:", end=" ")
+preorder(root)
+print()`
+                    },
+                    "9b": {
+                        id: "9b",
+                        title: "Set 1 - Q9 (ii): Gaming Platform Top 5 Leaderboard Using Min-Heap & Max-Heap Sort",
+                        code: `import heapq
+
+def top_5_leaderboard(stream):
+    min_heap = []
+    for score in stream:
+        if len(min_heap) < 5:
+            heapq.heappush(min_heap, score)
+        elif score > min_heap[0]:
+            heapq.heapreplace(min_heap, score)
+        print(f"After score {score:>3} -> Top-5 Min-Heap: {min_heap}")
+    return min_heap
+
+def max_heapify(arr, n, i):
+    largest = i
+    l, r = 2 * i + 1, 2 * i + 2
+    if l < n and arr[l] > arr[largest]: largest = l
+    if r < n and arr[r] > arr[largest]: largest = r
+    if largest != i:
+        arr[i], arr[largest] = arr[largest], arr[i]
+        max_heapify(arr, n, largest)
+
+def heap_sort_using_max_heap(arr):
+    n = len(arr)
+    for i in range(n // 2 - 1, -1, -1):
+        max_heapify(arr, n, i)
+    for i in range(n - 1, 0, -1):
+        arr[0], arr[i] = arr[i], arr[0]
+        max_heapify(arr, i, 0)
+    return arr
+
+scores = [45, 80, 12, 95, 60, 30, 88, 100, 75]
+top5 = top_5_leaderboard(scores)
+sorted_top5 = heap_sort_using_max_heap(top5)
+print("Final Sorted Top 5 (Ascending):", sorted_top5)
+print("Leaderboard Rank 1 to 5:", sorted_top5[::-1])`
+                    },
+                    "10a": {
+                        id: "10a",
+                        title: "Set 1 - Q10 (i): Inserting a Node into a Binary Search Tree (BST)",
+                        code: `class Node:
+    def __init__(self, key):
+        self.key = key
+        self.left = None
+        self.right = None
+
+def insert(root, key):
+    if root is None:
+        return Node(key)
+    if key < root.key:
+        root.left = insert(root.left, key)
+    elif key > root.key:
+        root.right = insert(root.right, key)
+    return root
+
+def inorder(root):
+    if root:
+        inorder(root.left)
+        print(root.key, end=" ")
+        inorder(root.right)
+
+r = None
+for val in [40, 20, 60, 10, 30]:
+    r = insert(r, val)
+print("Inorder Traversal after BST Insertions:", end=" ")
+inorder(r)
+print()`
+                    },
+                    "10b": {
+                        id: "10b",
+                        title: "Set 1 - Q10 (ii): Hospital Emergency Priority Queue Using Min-Heap",
+                        code: `import heapq
+
+class EmergencyRoomPQ:
+    def __init__(self):
+        self.heap = []
+
+    def insert(self, patient, priority):
+        heapq.heappush(self.heap, (priority, patient))
+        print(f"Inserted ({patient}, P={priority}) -> Heap Array: {self.heap}")
+
+    def peek(self):
+        return self.heap[0] if self.heap else None
+
+    def extract_min(self):
+        if not self.heap:
+            return None
+        treated = heapq.heappop(self.heap)
+        print(f"Treated {treated[1]} (P={treated[0]}) -> Heap Array: {self.heap}")
+        return treated
+
+er = EmergencyRoomPQ()
+er.insert("John", 4)
+er.insert("Alice", 1)
+er.insert("Bob", 3)
+er.insert("Diana", 2)
+print("Next to treat (Peek):", er.peek())
+er.extract_min()
+er.extract_min()`
+                    }
+                },
+                listItems: [
+                    ["1", "Q1 (i) Array Stack Operations & (ii) Browser Back History Stack"],
+                    ["2", "Q2 (i) Linked List Stack Push/Pop & (ii) Office Printer Spooler Queue"],
+                    ["3", "Q3 (i) Array Queue Enqueue/Dequeue & (ii) Music App Playlist SLL"],
+                    ["4", "Q4 (i) Insert at Beginning of SLL & (ii) College Admission Waiting List"],
+                    ["5", "Q5 (i) Polynomial Manipulation SLL & (ii) Projectile Height Poly Addition"],
+                    ["6", "Q6 (i) Infix to Postfix Conversion & (ii) Multiply Signal Polynomials"],
+                    ["7", "Q7 (i) Add Two Polynomials Logic & (ii) Calculator Postfix Trace (8+2)*5-6/3"],
+                    ["8", "Q8 (i) Polynomial Manipulation SLL & (ii) Compiler Expression Validation/Eval"],
+                    ["9", "Q9 (i) BST Preorder Traversal & (ii) Gaming Top-5 Leaderboard Min/Max Heap"],
+                    ["10", "Q10 (i) Insert Node into BST & (ii) Hospital Emergency Min-Heap PQ"]
+                ]
             },
-            "11c": {
-                id: "11c",
-                title: "Mini Project (Appendix C): complaint_categories.py",
-                code: `COMPLAINT_CATEGORIES = {
-    "Theft / Robbery / Burglary": {
-        "sections": [
-            "IPC Section 379 - Punishment for Theft",
-            "IPC Section 392 - Robbery",
-            "BNS Section 303 - Theft",
-            "BNS Section 305 - Robbery",
-        ],
-        "description": "Theft of property, snatching, robbery, dacoity, housebreaking.",
-    },
-    "Assault / Physical Violence": {
-        "sections": [
-            "IPC Section 323 - Voluntarily Causing Hurt",
-            "IPC Section 325 - Voluntarily Causing Grievous Hurt",
-            "BNS Section 115 - Voluntarily Causing Hurt",
-        ],
-        "description": "Physical assault, causing hurt or grievous hurt.",
-    },
-    "Cheating / Fraud / Forgery": {
-        "sections": [
-            "IPC Section 420 - Cheating and Inducing Delivery of Property",
-            "IPC Section 468 - Forgery for Purpose of Cheating",
-            "BNS Section 318 - Cheating",
-        ],
-        "description": "Financial fraud, cheating, impersonation, forgery.",
-    },
-}
+            s2: {
+                name: "SET 2 (Pages 3 & 4)",
+                experiments: {
+                    "1a": {
+                        id: "1a",
+                        title: "Set 2 - Q1 (i): Stack ADT Using Array Implementation (Insert, Delete, Display)",
+                        code: `class StackADT:
+    def __init__(self):
+        self.arr = []
 
-CATEGORY_NAMES = list(COMPLAINT_CATEGORIES)
+    def insert(self, val): # Push
+        self.arr.append(val)
+        print(f"Inserted: {val}")
 
-ADDRESSEE_TITLES = [
-    "Station House Officer (SHO)", "Sub-Inspector of Police", "Inspector of Police",
-    "Deputy Superintendent of Police (DSP)", "Superintendent of Police (SP)",
-    "Commissioner of Police", "Additional Commissioner of Police",
-    "Deputy Commissioner of Police (DCP)", "Judicial Magistrate First Class",
-    "Chief Judicial Magistrate", "District Magistrate / Collector",
-    "Cyber Crime Cell", "Women's Helpline / Women's Cell", "Other (specify)",
-]
+    def delete(self): # Pop
+        if not self.arr:
+            print("Stack Underflow!")
+            return None
+        print(f"Deleted: {self.arr.pop()}")
 
-ID_PROOF_TYPES = ["", "Aadhaar Card", "Voter ID", "Passport", "Driving License", "PAN Card", "Other"]
-RELATIONS = ["", "Known Person", "Stranger", "Neighbour", "Relative", "Spouse",
-             "Employer / Employee", "Business Associate", "Tenant / Landlord", "Other"]
-PARENT_RELATION_TYPES = ["S/o", "D/o", "W/o", "H/o", "M/o", "C/o"]`
+    def display(self):
+        print("Stack Contents:", self.arr[::-1])
+
+s = StackADT()
+s.insert(10); s.insert(20); s.insert(30)
+s.display()
+s.delete()
+s.display()`
+                    },
+                    "1b": {
+                        id: "1b",
+                        title: "Set 2 - Q1 (ii): Music App Playlist Using Singly Linked List",
+                        code: `class SongNode:
+    def __init__(self, title):
+        self.title = title
+        self.next = None
+
+class Playlist:
+    def __init__(self):
+        self.head = None
+
+    def add_beginning(self, title):
+        node = SongNode(title)
+        node.next = self.head
+        self.head = node
+
+    def add_end(self, title):
+        node = SongNode(title)
+        if not self.head:
+            self.head = node
+            return
+        curr = self.head
+        while curr.next:
+            curr = curr.next
+        curr.next = node
+
+    def add_after(self, target, title):
+        curr = self.head
+        while curr and curr.title != target:
+            curr = curr.next
+        if curr:
+            node = SongNode(title)
+            node.next = curr.next
+            curr.next = node
+        else:
+            print(f"Song '{target}' not found!")
+
+    def delete_song(self, title):
+        curr, prev = self.head, None
+        while curr and curr.title != title:
+            prev, curr = curr, curr.next
+        if not curr:
+            print(f"Song '{title}' not found!")
+            return
+        if not prev:
+            self.head = curr.next
+        else:
+            prev.next = curr.next
+        print(f"Deleted: {title}")
+
+    def search_song(self, title):
+        curr, pos = self.head, 1
+        while curr:
+            if curr.title == title:
+                print(f"Found '{title}' at position {pos}")
+                return True
+            curr, pos = curr.next, pos + 1
+        print(f"'{title}' not found in playlist.")
+        return False
+
+    def display(self):
+        curr, songs = self.head, []
+        while curr:
+            songs.append(curr.title)
+            curr = curr.next
+        print("Playlist:", " -> ".join(songs) if songs else "Empty")
+
+pl = Playlist()
+pl.add_beginning("Song A")
+pl.add_end("Song C")
+pl.add_after("Song A", "Song B")
+pl.display()
+pl.search_song("Song B")
+pl.delete_song("Song A")
+pl.display()`
+                    },
+                    "2a": {
+                        id: "2a",
+                        title: "Set 2 - Q2 (i): Search an Existing Element in a Singly Linked List",
+                        code: `class Node:
+    def __init__(self, data, next_node=None):
+        self.data = data
+        self.next = next_node
+
+def search_element(head, key):
+    curr, index = head, 1
+    while curr:
+        if curr.data == key:
+            print(f"Element {key} found at node position {index}.")
+            return True
+        curr = curr.next
+        index += 1
+    print(f"Element {key} not found in the list.")
+    return False
+
+head = Node(15, Node(25, Node(35, Node(45))))
+search_element(head, 35)
+search_element(head, 99)`
+                    },
+                    "2b": {
+                        id: "2b",
+                        title: "Set 2 - Q2 (ii): College Waiting List Using Singly Linked List",
+                        code: `class StudentNode:
+    def __init__(self, roll, name):
+        self.roll = roll
+        self.name = name
+        self.next = None
+
+class WaitingList:
+    def __init__(self):
+        self.head = None
+
+    def insert_end(self, roll, name):
+        node = StudentNode(roll, name)
+        if not self.head:
+            self.head = node
+            return
+        curr = self.head
+        while curr.next:
+            curr = curr.next
+        curr.next = node
+
+    def delete_first(self):
+        if not self.head:
+            print("List empty!")
+            return
+        print(f"Seat allotted to first student: {self.head.roll} ({self.head.name})")
+        self.head = self.head.next
+
+    def withdraw_by_roll(self, roll):
+        curr, prev = self.head, None
+        while curr and curr.roll != roll:
+            prev, curr = curr, curr.next
+        if not curr:
+            print(f"Roll {roll} not found!")
+            return
+        if not prev:
+            self.head = curr.next
+        else:
+            prev.next = curr.next
+        print(f"Withdrawn Roll: {roll}")
+
+    def reverse_list(self):
+        prev, curr = None, self.head
+        while curr:
+            nxt = curr.next
+            curr.next = prev
+            prev = curr
+            curr = nxt
+        self.head = prev
+
+    def count_students(self):
+        count, curr = 0, self.head
+        while curr:
+            count += 1
+            curr = curr.next
+        return count
+
+    def display(self):
+        curr, res = self.head, []
+        while curr:
+            res.append(f"{curr.roll}:{curr.name}")
+            curr = curr.next
+        print("Waiting List:", " -> ".join(res) if res else "Empty")
+
+wl = WaitingList()
+wl.insert_end(101, "Arun"); wl.insert_end(102, "Bala"); wl.insert_end(103, "Charan")
+wl.display()
+wl.delete_first()
+wl.withdraw_by_roll(102)
+wl.insert_end(104, "Deepak")
+wl.reverse_list()
+wl.display()
+print("Total Waiting:", wl.count_students())`
+                    },
+                    "3a": {
+                        id: "3a",
+                        title: "Set 2 - Q3 (i): Linear Queue Using Linked List Method",
+                        code: `class QNode:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+class LinkedQueue:
+    def __init__(self):
+        self.front = self.rear = None
+
+    def enqueue(self, data):
+        node = QNode(data)
+        if self.rear is None:
+            self.front = self.rear = node
+            return
+        self.rear.next = node
+        self.rear = node
+
+    def dequeue(self):
+        if self.front is None:
+            print("Queue Underflow!")
+            return None
+        temp = self.front
+        self.front = temp.next
+        if self.front is None:
+            self.rear = None
+        return temp.data
+
+    def display(self):
+        curr, items = self.front, []
+        while curr:
+            items.append(str(curr.data))
+            curr = curr.next
+        print("Queue:", " -> ".join(items) if items else "Empty")
+
+lq = LinkedQueue()
+lq.enqueue(10); lq.enqueue(20); lq.enqueue(30)
+lq.display()
+print("Dequeued:", lq.dequeue())
+lq.display()`
+                    },
+                    "3b": {
+                        id: "3b",
+                        title: "Set 2 - Q3 (ii): Train Coaches Chain Using Singly Linked List",
+                        code: `class Coach:
+    def __init__(self, number):
+        self.number = number
+        self.next = None
+
+class Train:
+    def __init__(self):
+        self.head = None
+
+    def add_front(self, number):
+        node = Coach(number)
+        node.next = self.head
+        self.head = node
+
+    def add_end(self, number):
+        node = Coach(number)
+        if not self.head:
+            self.head = node
+            return
+        curr = self.head
+        while curr.next:
+            curr = curr.next
+        curr.next = node
+
+    def add_at_position(self, number, pos):
+        if pos <= 1 or not self.head:
+            self.add_front(number)
+            return
+        curr = self.head
+        for _ in range(pos - 2):
+            if not curr.next:
+                break
+            curr = curr.next
+        node = Coach(number)
+        node.next = curr.next
+        curr.next = node
+
+    def remove_coach(self, number):
+        curr, prev = self.head, None
+        while curr and curr.number != number:
+            prev, curr = curr, curr.next
+        if not curr:
+            print(f"Coach {number} not found!")
+            return
+        if not prev:
+            self.head = curr.next
+        else:
+            prev.next = curr.next
+        print(f"Removed Coach: {number}")
+
+    def search_coach(self, number):
+        curr, pos = self.head, 1
+        while curr:
+            if curr.number == number:
+                print(f"Coach {number} found at position {pos}")
+                return True
+            curr, pos = curr.next, pos + 1
+        print(f"Coach {number} not found!")
+        return False
+
+    def display(self):
+        curr, res = self.head, []
+        while curr:
+            res.append(str(curr.number))
+            curr = curr.next
+        print("Train:", " <=> ".join(res) if res else "No coaches")
+
+t = Train()
+t.add_front("S1"); t.add_end("S3"); t.add_at_position("S2", 2)
+t.display()
+t.search_coach("S2")
+t.remove_coach("S1")
+t.display()`
+                    },
+                    "4a": {
+                        id: "4a",
+                        title: "Set 2 - Q4 (i): Singly Linked List: Creation, Insertion, and Deletion",
+                        code: `class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+class SinglyLinkedList:
+    def __init__(self):
+        self.head = None
+
+    def create(self, elements):
+        for el in elements:
+            self.insert_end(el)
+
+    def insert_end(self, data):
+        node = Node(data)
+        if not self.head:
+            self.head = node
+            return
+        curr = self.head
+        while curr.next:
+            curr = curr.next
+        curr.next = node
+
+    def delete_key(self, key):
+        curr, prev = self.head, None
+        while curr and curr.data != key:
+            prev, curr = curr, curr.next
+        if curr:
+            if prev: prev.next = curr.next
+            else: self.head = curr.next
+
+    def display(self):
+        curr, out = self.head, []
+        while curr:
+            out.append(str(curr.data))
+            curr = curr.next
+        print(" -> ".join(out))
+
+sll = SinglyLinkedList()
+sll.create([10, 20, 30])
+sll.insert_end(40)
+sll.delete_key(20)
+sll.display()`
+                    },
+                    "4b": {
+                        id: "4b",
+                        title: "Set 2 - Q4 (ii): Josephus Problem: Every 3rd Child Eliminated Using Circular Queue",
+                        code: `from collections import deque
+
+def josephus_circle(children, k=3):
+    cq = deque(children)
+    eliminated = []
+    while len(cq) > 1:
+        # Rotate first (k-1) children to the back of the queue
+        for _ in range(k - 1):
+            cq.append(cq.popleft())
+        # The k-th child at the front is eliminated
+        out = cq.popleft()
+        eliminated.append(out)
+    print("Order of Elimination:", " -> ".join(eliminated))
+    print("Winner:", cq[0])
+
+josephus_circle(["C1", "C2", "C3", "C4", "C5", "C6"], k=3)`
+                    },
+                    "5a": {
+                        id: "5a",
+                        title: "Set 2 - Q5 (i): Multi-Variable Polynomial Manipulation for 5x+3y, 4x-4y+z, and -3x+5y+2z",
+                        code: `class TermNode:
+    def __init__(self, coeff, var):
+        self.coeff = coeff
+        self.var = var
+        self.next = None
+
+class MultiVarPoly:
+    def __init__(self):
+        self.head = None
+
+    def add_term(self, coeff, var):
+        if coeff == 0: return
+        curr = self.head
+        while curr:
+            if curr.var == var:
+                curr.coeff += coeff
+                return
+            curr = curr.next
+        node = TermNode(coeff, var)
+        node.next = self.head
+        self.head = node
+
+    def display(self):
+        curr, res = self.head, []
+        while curr:
+            if curr.coeff != 0:
+                res.append(f"{curr.coeff}{curr.var}")
+            curr = curr.next
+        print(" + ".join(res[::-1]).replace("+ -", "- "))
+
+p1 = [(5, 'x'), (3, 'y')]
+p2 = [(4, 'x'), (-4, 'y'), (1, 'z')]
+p3 = [(-3, 'x'), (5, 'y'), (2, 'z')]
+
+result = MultiVarPoly()
+for poly in (p1, p2, p3):
+    for c, v in poly:
+        result.add_term(c, v)
+
+print("Sum of (5x+3y) + (4x-4y+z) + (-3x+5y+2z) =", end=" ")
+result.display()`
+                    },
+                    "5b": {
+                        id: "5b",
+                        title: "Set 2 - Q5 (ii): Multiply Signal Polynomials A(x)=2x^2+3x+1 and B(x)=x+4",
+                        code: `class PolyNode:
+    def __init__(self, coeff, exp):
+        self.coeff = coeff
+        self.exp = exp
+        self.next = None
+
+class Polynomial:
+    def __init__(self):
+        self.head = None
+
+    def insert_term(self, coeff, exp):
+        if coeff == 0: return
+        node = PolyNode(coeff, exp)
+        if not self.head or exp > self.head.exp:
+            node.next = self.head
+            self.head = node
+            return
+        curr, prev = self.head, None
+        while curr and curr.exp > exp:
+            prev, curr = curr, curr.next
+        if curr and curr.exp == exp:
+            curr.coeff += coeff
+            if curr.coeff == 0:
+                if prev: prev.next = curr.next
+                else: self.head = curr.next
+        else:
+            node.next = curr
+            prev.next = node
+
+    def display(self):
+        curr, terms = self.head, []
+        while curr:
+            terms.append(f"{curr.coeff}x^{curr.exp}" if curr.exp != 0 else f"{curr.coeff}")
+            curr = curr.next
+        print(" + ".join(terms).replace("+ -", "- ") if terms else "0")
+
+def multiply_poly(p1, p2):
+    res = Polynomial()
+    c1 = p1.head
+    while c1:
+        c2 = p2.head
+        while c2:
+            res.insert_term(c1.coeff * c2.coeff, c1.exp + c2.exp)
+            c2 = c2.next
+        c1 = c1.next
+    return res
+
+A = Polynomial()
+for c, e in [(2, 2), (3, 1), (1, 0)]: A.insert_term(c, e)
+B = Polynomial()
+for c, e in [(1, 1), (4, 0)]: B.insert_term(c, e)
+
+prod = multiply_poly(A, B)
+print("Product A(x) * B(x) =", end=" "); prod.display()`
+                    },
+                    "6a": {
+                        id: "6a",
+                        title: "Set 2 - Q6 (i): Infix to Postfix and Prefix Conversion for i) A*B+C, ii) X/Y*Z, iii) P+Q*R-S",
+                        code: `def infix_to_postfix(expr):
+    prec = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3}
+    stack, out = [], []
+    for ch in expr.replace(" ", ""):
+        if ch.isalnum():
+            out.append(ch)
+        elif ch == '(':
+            stack.append(ch)
+        elif ch == ')':
+            while stack and stack[-1] != '(':
+                out.append(stack.pop())
+            stack.pop()
+        else:
+            while stack and stack[-1] != '(' and prec.get(stack[-1], 0) >= prec[ch]:
+                out.append(stack.pop())
+            stack.append(ch)
+    while stack:
+        out.append(stack.pop())
+    return "".join(out)
+
+def infix_to_prefix(expr):
+    prec = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3}
+    rev = expr.replace(" ", "")[::-1]
+    rev = "".join(['(' if c == ')' else ')' if c == '(' else c for c in rev])
+    stack, out = [], []
+    for ch in rev:
+        if ch.isalnum():
+            out.append(ch)
+        elif ch == '(':
+            stack.append(ch)
+        elif ch == ')':
+            while stack and stack[-1] != '(':
+                out.append(stack.pop())
+            stack.pop()
+        else:
+            while stack and stack[-1] != '(' and prec.get(stack[-1], 0) > prec[ch]:
+                out.append(stack.pop())
+            stack.append(ch)
+    while stack:
+        out.append(stack.pop())
+    return "".join(out[::-1])
+
+for e in ["A*B+C", "X/Y*Z", "P+Q*R-S"]:
+    print(f"Infix: {e:<10} | Postfix: {infix_to_postfix(e):<10} | Prefix: {infix_to_prefix(e)}")`
+                    },
+                    "6b": {
+                        id: "6b",
+                        title: "Set 2 - Q6 (ii): Subtract B(x)=2x^2+x+3 from A(x)=4x^3+2x^2+6x+1, Remove Zero Terms & Evaluate at x=2",
+                        code: `class PolyNode:
+    def __init__(self, coeff, exp):
+        self.coeff = coeff
+        self.exp = exp
+        self.next = None
+
+class Polynomial:
+    def __init__(self):
+        self.head = None
+
+    def insert_term(self, coeff, exp):
+        if coeff == 0: return
+        node = PolyNode(coeff, exp)
+        if not self.head or exp > self.head.exp:
+            node.next = self.head
+            self.head = node
+            return
+        curr, prev = self.head, None
+        while curr and curr.exp > exp:
+            prev, curr = curr, curr.next
+        if curr and curr.exp == exp:
+            curr.coeff += coeff
+            if curr.coeff == 0:
+                if prev: prev.next = curr.next
+                else: self.head = curr.next
+        else:
+            node.next = curr
+            prev.next = node
+
+    def evaluate(self, x):
+        total, curr = 0, self.head
+        while curr:
+            total += curr.coeff * (x ** curr.exp)
+            curr = curr.next
+        return total
+
+    def display(self):
+        curr, terms = self.head, []
+        while curr:
+            terms.append(f"{curr.coeff}x^{curr.exp}" if curr.exp != 0 else f"{curr.coeff}")
+            curr = curr.next
+        print(" + ".join(terms).replace("+ -", "- ") if terms else "0")
+
+A = Polynomial()
+for c, e in [(4, 3), (2, 2), (6, 1), (1, 0)]: A.insert_term(c, e)
+B = Polynomial()
+for c, e in [(2, 2), (1, 1), (3, 0)]: B.insert_term(c, e)
+
+diff = Polynomial()
+curr = A.head
+while curr:
+    diff.insert_term(curr.coeff, curr.exp)
+    curr = curr.next
+curr = B.head
+while curr:
+    diff.insert_term(-curr.coeff, curr.exp) # Removes node automatically if coeff becomes 0
+    curr = curr.next
+
+print("A(x) - B(x) =", end=" "); diff.display()
+print("Value at x=2:", diff.evaluate(2))`
+                    },
+                    "7a": {
+                        id: "7a",
+                        title: "Set 2 - Q7 (i): Program to Implement Polynomial Manipulation Using Linked List",
+                        code: `class PolyNode:
+    def __init__(self, coeff, exp):
+        self.coeff = coeff
+        self.exp = exp
+        self.next = None
+
+class Polynomial:
+    def __init__(self):
+        self.head = None
+
+    def insert_term(self, coeff, exp):
+        if coeff == 0: return
+        node = PolyNode(coeff, exp)
+        if not self.head or exp > self.head.exp:
+            node.next = self.head
+            self.head = node
+            return
+        curr, prev = self.head, None
+        while curr and curr.exp > exp:
+            prev, curr = curr, curr.next
+        if curr and curr.exp == exp:
+            curr.coeff += coeff
+            if curr.coeff == 0:
+                if prev: prev.next = curr.next
+                else: self.head = curr.next
+        else:
+            node.next = curr
+            prev.next = node
+
+    @staticmethod
+    def add(p1, p2):
+        res = Polynomial()
+        for p in (p1, p2):
+            curr = p.head
+            while curr:
+                res.insert_term(curr.coeff, curr.exp)
+                curr = curr.next
+        return res
+
+    def display(self):
+        curr, terms = self.head, []
+        while curr:
+            terms.append(f"{curr.coeff}x^{curr.exp}" if curr.exp != 0 else f"{curr.coeff}")
+            curr = curr.next
+        print(" + ".join(terms).replace("+ -", "- ") if terms else "0")`
+                    },
+                    "7b": {
+                        id: "7b",
+                        title: "Set 2 - Q7 (ii): Billing System: Convert 100+20*(5-3)/4 to Postfix & Evaluate Final Bill",
+                        code: `import re
+
+def billing_postfix_trace(expr):
+    tokens = re.findall(r'\\d+|[+*/()-]', expr)
+    prec = {'+': 1, '-': 1, '*': 2, '/': 2}
+    stack, postfix = [], []
+    print(f"{'Token':<8} | {'Stack':<15} | {'Postfix Output'}")
+    print("-" * 48)
+    for t in tokens:
+        if t.isdigit():
+            postfix.append(t)
+        elif t == '(':
+            stack.append(t)
+        elif t == ')':
+            while stack and stack[-1] != '(':
+                postfix.append(stack.pop())
+            stack.pop()
+        else:
+            while stack and stack[-1] != '(' and prec.get(stack[-1], 0) >= prec[t]:
+                postfix.append(stack.pop())
+            stack.append(t)
+        print(f"{t:<8} | {' '.join(stack):<15} | {' '.join(postfix)}")
+    while stack:
+        postfix.append(stack.pop())
+    print(f"{'END':<8} | {' '.join(stack):<15} | {' '.join(postfix)}")
+
+    eval_stack = []
+    for t in postfix:
+        if t.isdigit():
+            eval_stack.append(float(t))
+        else:
+            b, a = eval_stack.pop(), eval_stack.pop()
+            if t == '+': eval_stack.append(a + b)
+            elif t == '-': eval_stack.append(a - b)
+            elif t == '*': eval_stack.append(a * b)
+            elif t == '/': eval_stack.append(a / b)
+    print("Final Bill Amount:", eval_stack[0])
+
+billing_postfix_trace("100+20*(5-3)/4")`
+                    },
+                    "8a": {
+                        id: "8a",
+                        title: "Set 2 - Q8 (i): Infix to Postfix Conversion and Postfix Evaluation Using Stack",
+                        code: `def infix_to_postfix(expr):
+    prec = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3}
+    stack, out = [], []
+    for ch in expr.replace(" ", ""):
+        if ch.isalnum():
+            out.append(ch)
+        elif ch == '(':
+            stack.append(ch)
+        elif ch == ')':
+            while stack and stack[-1] != '(':
+                out.append(stack.pop())
+            stack.pop()
+        else:
+            while stack and stack[-1] != '(' and prec.get(stack[-1], 0) >= prec[ch]:
+                out.append(stack.pop())
+            stack.append(ch)
+    while stack:
+        out.append(stack.pop())
+    return "".join(out)
+
+def infix_to_postfix_and_eval(expr):
+    postfix = infix_to_postfix(expr)
+    stack = []
+    for ch in postfix:
+        if ch.isdigit():
+            stack.append(int(ch))
+        else:
+            b, a = stack.pop(), stack.pop()
+            if ch == '+': stack.append(a + b)
+            elif ch == '-': stack.append(a - b)
+            elif ch == '*': stack.append(a * b)
+            elif ch == '/': stack.append(a / b)
+    print(f"Expression: {expr} -> Postfix: {postfix} -> Value: {stack[0]}")
+
+infix_to_postfix_and_eval("2+3*(6-4)")`
+                    },
+                    "8b": {
+                        id: "8b",
+                        title: "Set 2 - Q8 (ii): Subtract B(x)=2x^2+x+3 from A(x)=4x^3+2x^2+6x+1, Remove Zero Terms & Evaluate at x=2",
+                        code: `class PolyNode:
+    def __init__(self, coeff, exp):
+        self.coeff = coeff
+        self.exp = exp
+        self.next = None
+
+class Polynomial:
+    def __init__(self):
+        self.head = None
+
+    def insert_term(self, coeff, exp):
+        if coeff == 0: return
+        node = PolyNode(coeff, exp)
+        if not self.head or exp > self.head.exp:
+            node.next = self.head
+            self.head = node
+            return
+        curr, prev = self.head, None
+        while curr and curr.exp > exp:
+            prev, curr = curr, curr.next
+        if curr and curr.exp == exp:
+            curr.coeff += coeff
+            if curr.coeff == 0:
+                if prev: prev.next = curr.next
+                else: self.head = curr.next
+        else:
+            node.next = curr
+            prev.next = node
+
+    def evaluate(self, x):
+        total, curr = 0, self.head
+        while curr:
+            total += curr.coeff * (x ** curr.exp)
+            curr = curr.next
+        return total
+
+    def display(self):
+        curr, terms = self.head, []
+        while curr:
+            terms.append(f"{curr.coeff}x^{curr.exp}" if curr.exp != 0 else f"{curr.coeff}")
+            curr = curr.next
+        print(" + ".join(terms).replace("+ -", "- ") if terms else "0")
+
+A = Polynomial()
+for c, e in [(4, 3), (2, 2), (6, 1), (1, 0)]: A.insert_term(c, e)
+B = Polynomial()
+for c, e in [(2, 2), (1, 1), (3, 0)]: B.insert_term(c, e)
+
+diff = Polynomial()
+for coeff, exp in [(4, 3), (2, 2), (6, 1), (1, 0)]:
+    diff.insert_term(coeff, exp)
+for coeff, exp in [(2, 2), (1, 1), (3, 0)]:
+    diff.insert_term(-coeff, exp)
+
+print("A(x) - B(x) =", end=" "); diff.display()
+print("Value at x=2:", diff.evaluate(2))`
+                    },
+                    "9a": {
+                        id: "9a",
+                        title: "Set 2 - Q9 (i): Implement Heaps Using Priority Queues",
+                        code: `import heapq
+
+class PriorityQueueHeap:
+    def __init__(self):
+        self.pq = []
+
+    def push(self, priority, task):
+        heapq.heappush(self.pq, (priority, task))
+
+    def pop(self):
+        return heapq.heappop(self.pq) if self.pq else None
+
+    def display(self):
+        print("Heap PQ:", self.pq)
+
+pq = PriorityQueueHeap()
+pq.push(3, "Low Priority Task")
+pq.push(1, "Urgent Task")
+pq.push(2, "Medium Task")
+pq.display()
+print("Popped Highest Priority:", pq.pop())`
+                    },
+                    "9b": {
+                        id: "9b",
+                        title: "Set 2 - Q9 (ii): Continuous Stream of Player Scores Top-5 Min-Heap & Heap Sort",
+                        code: `import heapq
+
+def top_5_leaderboard(stream):
+    min_heap = []
+    for score in stream:
+        if len(min_heap) < 5:
+            heapq.heappush(min_heap, score)
+        elif score > min_heap[0]:
+            heapq.heapreplace(min_heap, score)
+        print(f"After score {score:>3} -> Top-5 Min-Heap: {min_heap}")
+    return min_heap
+
+def max_heapify(arr, n, i):
+    largest = i
+    l, r = 2 * i + 1, 2 * i + 2
+    if l < n and arr[l] > arr[largest]: largest = l
+    if r < n and arr[r] > arr[largest]: largest = r
+    if largest != i:
+        arr[i], arr[largest] = arr[largest], arr[i]
+        max_heapify(arr, n, largest)
+
+def heap_sort_using_max_heap(arr):
+    n = len(arr)
+    for i in range(n // 2 - 1, -1, -1):
+        max_heapify(arr, n, i)
+    for i in range(n - 1, 0, -1):
+        arr[0], arr[i] = arr[i], arr[0]
+        max_heapify(arr, i, 0)
+    return arr
+
+scores = [45, 80, 12, 95, 60, 30, 88, 100, 75]
+top5 = top_5_leaderboard(scores)
+sorted_top5 = heap_sort_using_max_heap(top5)
+print("Final Sorted Top 5 (Ascending):", sorted_top5)
+print("Leaderboard Rank 1 to 5:", sorted_top5[::-1])`
+                    },
+                    "10a": {
+                        id: "10a",
+                        title: "Set 2 - Q10 (i): Perform Rotations (RR, LL, LR, RL) on AVL Tree",
+                        code: `class AVLNode:
+    def __init__(self, key):
+        self.key = key
+        self.left = None
+        self.right = None
+        self.height = 1
+
+class AVLTree:
+    def height(self, node):
+        return node.height if node else 0
+
+    def balance_factor(self, node):
+        return self.height(node.left) - self.height(node.right) if node else 0
+
+    # Right Rotation (Used in LL and RL cases)
+    def right_rotate(self, y):
+        x = y.left
+        T2 = x.right
+        x.right = y
+        y.left = T2
+        y.height = 1 + max(self.height(y.left), self.height(y.right))
+        x.height = 1 + max(self.height(x.left), self.height(x.right))
+        return x
+
+    # Left Rotation (Used in RR and LR cases)
+    def left_rotate(self, x):
+        y = x.right
+        T2 = y.left
+        y.left = x
+        x.right = T2
+        x.height = 1 + max(self.height(x.left), self.height(x.right))
+        y.height = 1 + max(self.height(y.left), self.height(y.right))
+        return y
+
+    def insert(self, root, key):
+        if not root:
+            return AVLNode(key)
+        if key < root.key:
+            root.left = self.insert(root.left, key)
+        elif key > root.key:
+            root.right = self.insert(root.right, key)
+        else:
+            return root
+
+        root.height = 1 + max(self.height(root.left), self.height(root.right))
+        bf = self.balance_factor(root)
+
+        # 1. LL Case -> Single Right Rotation
+        if bf > 1 and key < root.left.key:
+            return self.right_rotate(root)
+        # 2. RR Case -> Single Left Rotation
+        if bf < -1 and key > root.right.key:
+            return self.left_rotate(root)
+        # 3. LR Case -> Left Rotate child, then Right Rotate root
+        if bf > 1 and key > root.left.key:
+            root.left = self.left_rotate(root.left)
+            return self.right_rotate(root)
+        # 4. RL Case -> Right Rotate child, then Left Rotate root
+        if bf < -1 and key < root.right.key:
+            root.right = self.right_rotate(root.right)
+            return self.left_rotate(root)
+
+        return root`
+                    },
+                    "10b": {
+                        id: "10b",
+                        title: "Set 2 - Q10 (ii): Construct AVL Tree for 21, 26, 30, 9, 4, 14, 28, 18, 15, 10, 2, 3, 7",
+                        code: `class AVLNode:
+    def __init__(self, key):
+        self.key = key
+        self.left = None
+        self.right = None
+        self.height = 1
+
+class AVLTree:
+    def height(self, node):
+        return node.height if node else 0
+
+    def balance_factor(self, node):
+        return self.height(node.left) - self.height(node.right) if node else 0
+
+    def right_rotate(self, y):
+        x = y.left
+        T2 = x.right
+        x.right = y
+        y.left = T2
+        y.height = 1 + max(self.height(y.left), self.height(y.right))
+        x.height = 1 + max(self.height(x.left), self.height(x.right))
+        return x
+
+    def left_rotate(self, x):
+        y = x.right
+        T2 = y.left
+        y.left = x
+        x.right = T2
+        x.height = 1 + max(self.height(x.left), self.height(x.right))
+        y.height = 1 + max(self.height(y.left), self.height(y.right))
+        return y
+
+    def insert(self, root, key):
+        if not root:
+            return AVLNode(key)
+        if key < root.key:
+            root.left = self.insert(root.left, key)
+        elif key > root.key:
+            root.right = self.insert(root.right, key)
+        else:
+            return root
+
+        root.height = 1 + max(self.height(root.left), self.height(root.right))
+        bf = self.balance_factor(root)
+
+        if bf > 1 and key < root.left.key:
+            print(f" [LL Rotation at {root.key} after inserting {key}]")
+            return self.right_rotate(root)
+        if bf < -1 and key > root.right.key:
+            print(f" [RR Rotation at {root.key} after inserting {key}]")
+            return self.left_rotate(root)
+        if bf > 1 and key > root.left.key:
+            print(f" [LR Rotation at {root.key} after inserting {key}]")
+            root.left = self.left_rotate(root.left)
+            return self.right_rotate(root)
+        if bf < -1 and key < root.right.key:
+            print(f" [RL Rotation at {root.key} after inserting {key}]")
+            root.right = self.right_rotate(root.right)
+            return self.left_rotate(root)
+
+        return root
+
+    def inorder(self, root):
+        return self.inorder(root.left) + [root.key] + self.inorder(root.right) if root else []
+
+    def preorder(self, root):
+        return [root.key] + self.preorder(root.left) + self.preorder(root.right) if root else []
+
+avl = AVLTree()
+root = None
+data = [21, 26, 30, 9, 4, 14, 28, 18, 15, 10, 2, 3, 7]
+for val in data:
+    root = avl.insert(root, val)
+
+print("Final AVL Inorder (Sorted):", avl.inorder(root))
+print("Final AVL Preorder (Root-Left-Right):", avl.preorder(root))`
+                    }
+                },
+                listItems: [
+                    ["1", "Q1 (i) Array Stack ADT (Insert/Delete) & (ii) Music App Playlist SLL"],
+                    ["2", "Q2 (i) Search Element in SLL & (ii) College Admission Waiting List SLL"],
+                    ["3", "Q3 (i) Linear Queue Linked List & (ii) Train Coaches Chain SLL"],
+                    ["4", "Q4 (i) SLL Creation/Insertion/Deletion & (ii) Josephus Circle Queue"],
+                    ["5", "Q5 (i) Multi-Variable Polynomial 5x+3y... & (ii) Multiply Polynomials"],
+                    ["6", "Q6 (i) Infix to Postfix & Prefix & (ii) Subtract Polynomials & Eval x=2"],
+                    ["7", "Q7 (i) Polynomial Manipulation SLL & (ii) Billing Postfix 100+20*(5-3)/4"],
+                    ["8", "Q8 (i) Infix to Postfix & Eval & (ii) Subtract Polynomials & Eval x=2"],
+                    ["9", "Q9 (i) Heaps Using Priority Queues & (ii) Gaming Top-5 Leaderboard Heap"],
+                    ["10", "Q10 (i) AVL Rotations (LL,RR,LR,RL) & (ii) Construct AVL Tree (21,26...)"]
+                ]
             }
         };
 
-        // Group mapping so typing "1" outputs both 1a and 1b, etc.
+        // Group mapping so typing "1" outputs both 1a (i) and 1b (ii), etc.
         const experimentGroups = {
             "1": ["1a", "1b"],
             "2": ["2a", "2b"],
             "3": ["3a", "3b"],
             "4": ["4a", "4b"],
-            "5": ["5"],
-            "6": ["6"],
+            "5": ["5a", "5b"],
+            "6": ["6a", "6b"],
             "7": ["7a", "7b"],
-            "8": ["8"],
-            "9": ["9"],
-            "10": ["10a", "10b"],
-            "11": ["11a", "11b", "11c"],
-            "project": ["11a", "11b", "11c"]
+            "8": ["8a", "8b"],
+            "9": ["9a", "9b"],
+            "10": ["10a", "10b"]
         };
 
         const terminalBody = document.getElementById('terminal-body');
         const cmdInput = document.getElementById('cmd-input');
+        const titleBarText = document.getElementById('title-bar-text');
         let commandHistory = [];
         let historyIndex = -1;
 
-        // Escape HTML characters safely
         function escapeHtml(str) {
             return str
                 .replace(/&/g, "&amp;")
@@ -794,7 +2126,6 @@ PARENT_RELATION_TYPES = ["S/o", "D/o", "W/o", "H/o", "M/o", "C/o"]`
                 .replace(/>/g, "&gt;");
         }
 
-        // Copy raw Python text reliably inside iframe or browser
         function copyTextToClipboard(text, btnElement) {
             const textarea = document.createElement('textarea');
             textarea.value = text;
@@ -819,15 +2150,13 @@ PARENT_RELATION_TYPES = ["S/o", "D/o", "W/o", "H/o", "M/o", "C/o"]`
             }
         }
 
-        // Copy by experiment key
-        function copyExperimentCode(expKey, btnId) {
-            const exp = experiments[expKey];
+        function copyExperimentCode(setKey, expKey, btnId) {
+            const exp = setsData[setKey]?.experiments[expKey];
             if (!exp) return;
             const btn = btnId ? document.getElementById(btnId) : null;
             copyTextToClipboard(exp.code, btn);
         }
 
-        // Render classic Windows CMD + Python Startup Banner
         function renderWelcomeBanner() {
             const bannerHTML = `
                 <div class="text-[#cccccc] whitespace-pre-wrap leading-snug">Microsoft Windows [Version 10.0.19045.5011]
@@ -837,12 +2166,12 @@ C:\\Users\\Administrator&gt;python -i
 Python 3.12.2 (tags/v3.12.2:6abddd9, Feb  6 2024, 21:26:36) [MSC v.1937 64 bit (AMD64)] on win32
 Type "help", "copyright", "credits" or "license" for more information.
 
-Type '1' through '10' to display experiment programs (both a &amp; b), 'ls' to list all experiments, 'cp &lt;num&gt;' to copy, or 'cls' / 'clear' to clear.</div>
+[Active Mode: SET 1] Type 's1' for Set 1 or 's2' for Set 2.
+Type '1' through '10' (or '1a'/'1b') to display question programs, 'ls' to list all, 'cp &lt;num&gt;' to copy, or 'cls' to clear.</div>
             `;
             appendOutputBlock(bannerHTML);
         }
 
-        // Append echoed >>> command line
         function appendCommandEcho(rawCmd) {
             const cmdLine = document.createElement('div');
             cmdLine.className = "text-[#cccccc] whitespace-pre-wrap pt-1";
@@ -850,7 +2179,6 @@ Type '1' through '10' to display experiment programs (both a &amp; b), 'ls' to l
             terminalBody.appendChild(cmdLine);
         }
 
-        // Append arbitrary HTML block to terminal stream
         function appendOutputBlock(htmlContent) {
             const wrapper = document.createElement('div');
             wrapper.innerHTML = htmlContent;
@@ -862,17 +2190,16 @@ Type '1' through '10' to display experiment programs (both a &amp; b), 'ls' to l
             terminalBody.scrollTop = terminalBody.scrollHeight;
         }
 
-        // Format Experiment Python Block strictly in monochrome with minimal [Copy] button
-        function renderExperimentBlock(expKey) {
-            const exp = experiments[expKey];
-            const uniqueBtnId = `copy-btn-${expKey}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        function renderExperimentBlock(setKey, expKey) {
+            const exp = setsData[setKey].experiments[expKey];
+            const uniqueBtnId = `copy-btn-${setKey}-${expKey}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
             return `
                 <div class="my-1 border border-[#555555] bg-black p-3">
                     <div class="flex items-center justify-between border-b border-[#444444] pb-1.5 mb-2 text-xs sm:text-sm text-[#cccccc]">
                         <span># ${escapeHtml(exp.title)}</span>
                         <button 
                             id="${uniqueBtnId}"
-                            onclick="copyExperimentCode('${expKey}', '${uniqueBtnId}')" 
+                            onclick="copyExperimentCode('${setKey}', '${expKey}', '${uniqueBtnId}')" 
                             class="text-[#ffffff] hover:bg-[#cccccc] hover:text-black px-1.5 py-0.5 border border-[#777777] text-xs cursor-pointer select-none"
                         >[Copy]</button>
                     </div>
@@ -881,39 +2208,24 @@ Type '1' through '10' to display experiment programs (both a &amp; b), 'ls' to l
             `;
         }
 
-        // Render ASCII Table List of all Experiments
-        function renderExperimentList() {
-            const listItems = [
-                ["1", "Ex 1.a & 1.b: Sum of even numbers (1-50) & Return multiple values"],
-                ["2", "Ex 2.a & 2.b: Pattern using loops & Function default arguments"],
-                ["3", "Ex 3.a & 3.b: String length without len() & Substring check"],
-                ["4", "Ex 4.a & 4.b: List operations & Built-in functions on a list"],
-                ["5", "Ex 5: Represent and concatenate tuples"],
-                ["6", "Ex 6: Sort list of strings based on vowel count"],
-                ["7", "Ex 7.a & 7.b: Check key in dictionary & Add key-value pair"],
-                ["8", "Ex 8: Identify most frequent words in a text file"],
-                ["9", "Ex 9: Class with BMI calculation"],
-                ["10", "Ex 10.a & 10.b: Creating NumPy arrays & Pandas DataFrame"],
-                ["11", "Mini Project: Police Complaint Generator (app, pdf, categories)"]
-            ];
-
+        function renderExperimentList(setKey) {
+            const activeSetObj = setsData[setKey];
             let rows = '';
-            listItems.forEach(([cmd, title]) => {
+            activeSetObj.listItems.forEach(([cmd, title]) => {
                 const paddedKey = cmd.padEnd(4, ' ');
-                const paddedTitle = title.padEnd(64, ' ');
+                const paddedTitle = title.padEnd(66, ' ');
                 rows += `| ${paddedKey} | ${escapeHtml(paddedTitle)} |\n`;
             });
 
             return `
-                <pre class="text-[#cccccc] text-xs sm:text-sm overflow-x-auto leading-snug">+------+------------------------------------------------------------------+
-| Cmd  | Experiment Title                                                 |
-+------+------------------------------------------------------------------+
-${rows}+------+------------------------------------------------------------------+
-Commands: type 1-10 (or 1a, 1b...) to view code, cp &lt;num&gt; to copy, cls to clear.</pre>
+                <pre class="text-[#cccccc] text-xs sm:text-sm overflow-x-auto leading-snug">+------+--------------------------------------------------------------------+
+| Cmd  | ${escapeHtml(activeSetObj.name.padEnd(66, ' '))} |
++------+--------------------------------------------------------------------+
+${rows}+------+--------------------------------------------------------------------+
+Switch sets: 's1' (Set 1) or 's2' (Set 2). View code: '1'-'10' (or '1a'/'1b'). Copy: 'cp &lt;num&gt;'.</pre>
             `;
         }
 
-        // Render monochrome Hosting Guide
         function renderHostGuide() {
             return `
                 <pre class="text-[#cccccc] text-xs sm:text-sm overflow-x-auto whitespace-pre-wrap leading-snug">+--------------------------------------------------------------------+
@@ -923,16 +2235,24 @@ Commands: type 1-10 (or 1a, 1b...) to view code, cp &lt;num&gt; to copy, cls to 
 2. Open https://app.netlify.com/drop in your browser.
 3. Drag and drop the folder onto the page.
 4. Go to Site Configuration -> Change site name -> set an easy name
-   such as: pythonlab.netlify.app</pre>
+   such as: dsalab.netlify.app</pre>
             `;
         }
 
-        // Normalize key (e.g., "1.a" -> "1a")
+        // Normalize key (e.g., "1.a" -> "1a", "1(i)" -> "1a", "1(ii)" -> "1b", "1i" -> "1a", "1ii" -> "1b")
         function normalizeKey(str) {
-            return str.replace(/\./g, '').toLowerCase();
+            let s = str.replace(/\./g, '').replace(/\s+/g, '').toLowerCase();
+            s = s.replace(/\(ii\)|ii$/g, 'b').replace(/\(i\)|i$/g, 'a');
+            return s;
         }
 
-        // Main command router
+        function switchSet(newSet) {
+            currentSet = newSet;
+            const label = newSet === 's1' ? 'SET 1' : 'SET 2';
+            titleBarText.textContent = `Command Prompt - python -i [${label}]`;
+            appendOutputBlock(`<div class="text-[#cccccc]">Switched to <strong>${setsData[newSet].name}</strong>. Type <strong>1</strong>-<strong>10</strong> (or <strong>1a</strong>, <strong>1b</strong>) to get ${label} programs, or <strong>ls</strong> to view the list.</div>`);
+        }
+
         function executeCommand(rawInput) {
             const trimmed = rawInput.trim();
             if (!trimmed) {
@@ -941,14 +2261,11 @@ Commands: type 1-10 (or 1a, 1b...) to view code, cp &lt;num&gt; to copy, cls to 
                 return;
             }
 
-            // Record command history
             commandHistory.push(trimmed);
             historyIndex = commandHistory.length;
 
-            // Strip trailing semicolon if user types "1;" or "ls;"
             const cleanInput = trimmed.replace(/;$/, '').trim();
             const lower = cleanInput.toLowerCase();
-            const norm = normalizeKey(lower);
 
             // Clear terminal
             if (lower === 'clear' || lower === 'cls' || lower === 'exit()') {
@@ -959,67 +2276,100 @@ Commands: type 1-10 (or 1a, 1b...) to view code, cp &lt;num&gt; to copy, cls to 
             // Echo user command
             appendCommandEcho(trimmed);
 
-            // Check grouped experiment number (1-11 or 'project') -> outputs both a & b
+            // Switch to Set 1 or Set 2 ("s1", "set1", "set 1", "s2", "set2", "set 2")
+            if (lower === 's1' || lower === 'set1' || lower === 'set 1') {
+                switchSet('s1');
+                return;
+            }
+            if (lower === 's2' || lower === 'set2' || lower === 'set 2') {
+                switchSet('s2');
+                return;
+            }
+
+            // Direct inline set + question query, e.g., "s1 3", "s2 10", "s1 5a"
+            const directSetMatch = lower.match(/^(s1|set1|s2|set2)\s+(.+)$/);
+            if (directSetMatch) {
+                const targetSet = directSetMatch[1].includes('1') ? 's1' : 's2';
+                currentSet = targetSet;
+                titleBarText.textContent = `Command Prompt - python -i [${targetSet === 's1' ? 'SET 1' : 'SET 2'}]`;
+                const subKey = normalizeKey(directSetMatch[2]);
+                if (experimentGroups.hasOwnProperty(subKey)) {
+                    const blocksHtml = experimentGroups[subKey].map(k => renderExperimentBlock(currentSet, k)).join('');
+                    appendOutputBlock(blocksHtml);
+                    return;
+                }
+                if (setsData[currentSet].experiments.hasOwnProperty(subKey)) {
+                    appendOutputBlock(renderExperimentBlock(currentSet, subKey));
+                    return;
+                }
+            }
+
+            const norm = normalizeKey(lower);
+            const activeExperiments = setsData[currentSet].experiments;
+
+            // Check grouped question number (1-10) -> outputs both i (a) & ii (b)
             if (experimentGroups.hasOwnProperty(norm)) {
                 const keys = experimentGroups[norm];
-                const blocksHtml = keys.map(k => renderExperimentBlock(k)).join('');
+                const blocksHtml = keys.map(k => renderExperimentBlock(currentSet, k)).join('');
                 appendOutputBlock(blocksHtml);
                 return;
             }
 
-            // Check individual sub-experiment (1a, 1b, 2a, 2b, 10a, 10b, etc.)
-            if (experiments.hasOwnProperty(norm)) {
-                appendOutputBlock(renderExperimentBlock(norm));
+            // Check individual sub-question (1a, 1b, 2a, 2b, 10a, 10b, etc.)
+            if (activeExperiments.hasOwnProperty(norm)) {
+                appendOutputBlock(renderExperimentBlock(currentSet, norm));
                 return;
             }
 
             // Support "exp 1", "q1", "ex 1a", etc.
-            const expMatch = norm.match(/^(?:exp|experiment|ex|q|question)\s*([0-9]{1,2}[abc]?)$/);
+            const expMatch = norm.match(/^(?:exp|experiment|ex|q|question)\s*([0-9]{1,2}[ab]?)$/);
             if (expMatch) {
                 const target = expMatch[1];
                 if (experimentGroups.hasOwnProperty(target)) {
-                    const blocksHtml = experimentGroups[target].map(k => renderExperimentBlock(k)).join('');
+                    const blocksHtml = experimentGroups[target].map(k => renderExperimentBlock(currentSet, k)).join('');
                     appendOutputBlock(blocksHtml);
                     return;
                 }
-                if (experiments.hasOwnProperty(target)) {
-                    appendOutputBlock(renderExperimentBlock(target));
+                if (activeExperiments.hasOwnProperty(target)) {
+                    appendOutputBlock(renderExperimentBlock(currentSet, target));
                     return;
                 }
             }
 
-            // List all experiments
+            // List all questions in current set
             if (lower === 'ls' || lower === 'list' || lower === 'dir' || lower === 'help' || lower === 'help()' || lower === '?') {
-                appendOutputBlock(renderExperimentList());
+                appendOutputBlock(renderExperimentList(currentSet));
                 return;
             }
 
-            // Copy command: "copy <1-11>" or "cp <1a>"
-            const copyMatch = lower.match(/^(?:copy|cp)\s+([0-9]{1,2}\.?[abc]?|project)$/);
+            // Copy command: "copy <1-10>" or "cp <1a>"
+            const copyMatch = lower.match(/^(?:copy|cp)\s+(.+)$/);
             if (copyMatch) {
                 const targetKey = normalizeKey(copyMatch[1]);
                 if (experimentGroups.hasOwnProperty(targetKey)) {
-                    const combinedCode = experimentGroups[targetKey].map(k => `# ${experiments[k].title}\n${experiments[k].code}`).join('\n\n');
+                    const combinedCode = experimentGroups[targetKey]
+                        .map(k => `# ${activeExperiments[k].title}\n${activeExperiments[k].code}`)
+                        .join('\n\n');
                     const ok = copyTextToClipboard(combinedCode, null);
                     if (ok) {
-                        appendOutputBlock(`<div class="text-[#cccccc]">Program(s) copied to clipboard.</div>`);
+                        appendOutputBlock(`<div class="text-[#cccccc]">Copied ${setsData[currentSet].name} Q${targetKey} (i &amp; ii) to clipboard.</div>`);
                     }
                     return;
                 }
-                if (experiments.hasOwnProperty(targetKey)) {
-                    const ok = copyTextToClipboard(experiments[targetKey].code, null);
+                if (activeExperiments.hasOwnProperty(targetKey)) {
+                    const ok = copyTextToClipboard(activeExperiments[targetKey].code, null);
                     if (ok) {
-                        appendOutputBlock(`<div class="text-[#cccccc]">Program copied to clipboard.</div>`);
+                        appendOutputBlock(`<div class="text-[#cccccc]">Copied ${activeExperiments[targetKey].title} to clipboard.</div>`);
                     }
                     return;
                 }
             }
 
-            // All experiments at once (1 to 10)
+            // All questions in current set at once (1 to 10)
             if (lower === 'all') {
                 for (let i = 1; i <= 10; i++) {
                     const keys = experimentGroups[String(i)];
-                    keys.forEach(k => appendOutputBlock(renderExperimentBlock(k)));
+                    keys.forEach(k => appendOutputBlock(renderExperimentBlock(currentSet, k)));
                 }
                 return;
             }
@@ -1030,11 +2380,11 @@ Commands: type 1-10 (or 1a, 1b...) to view code, cp &lt;num&gt; to copy, cls to 
                 return;
             }
 
-            // Unknown command fallback mimicking Python NameError / SyntaxError
+            // Unknown command fallback mimicking Python NameError
             appendOutputBlock(`
                 <div class="text-[#cccccc] whitespace-pre-wrap">Traceback (most recent call last):
   File "&lt;stdin&gt;", line 1, in &lt;module&gt;
-NameError: name '${escapeHtml(trimmed)}' is not defined. Type '1'-'10' for programs, 'ls' to list, 'cp &lt;num&gt;' to copy, or 'cls' to clear.</div>
+NameError: name '${escapeHtml(trimmed)}' is not defined. Type 's1' or 's2' to switch sets, '1'-'10' for programs, 'ls' to list, 'cp &lt;num&gt;' to copy, or 'cls' to clear.</div>
             `);
         }
 
@@ -1071,7 +2421,6 @@ NameError: name '${escapeHtml(trimmed)}' is not defined. Type '1'-'10' for progr
             }
         });
 
-        // Keep input focused when clicking terminal background unless selecting code text
         function focusInputIfNotSelecting() {
             const selection = window.getSelection();
             if (!selection || selection.toString().length === 0) {
@@ -1079,7 +2428,6 @@ NameError: name '${escapeHtml(trimmed)}' is not defined. Type '1'-'10' for progr
             }
         }
 
-        // Initialize Terminal on Load
         window.onload = () => {
             renderWelcomeBanner();
             cmdInput.focus();
