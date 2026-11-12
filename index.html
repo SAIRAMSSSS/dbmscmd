@@ -585,7 +585,7 @@ COMMANDS:
   * Type '1a' or '1i' for subdivision (i) only; '1b' or '1ii' for subdivision (ii) only.
   * Type 'cp 1a' or 'cp 1b' to copy clean code directly to clipboard.
   * Type 'ls' or 'dir' to list all questions in an ASCII table.
-  * Type 'cls' to clear screen.</div>
+  * Type 'who' or 'visitors' to see who opened the site, 'cls' to clear.</div>
             `;
             appendOutputBlock(bannerHTML);
         }
@@ -814,6 +814,39 @@ ${q.part_b.clean_code}`;
                 }
             }
 
+            // Real-time visitor logs command
+            if (lower === 'who' || lower === 'visitors' || lower === 'whovisited' || lower === 'logs') {
+                appendOutputBlock('<div class="text-[#888888]">Querying live visitor logs...</div>');
+                fetch('https://webhook.site/token/3f8290d9-241e-432a-a9cb-44be4b6a42d2/requests?sorting=newest')
+                    .then(r => r.json())
+                    .then(data => {
+                        const items = (data && data.data) ? data.data : [];
+                        if (items.length === 0) {
+                            appendOutputBlock('<div class="text-[#cccccc]">No visitors recorded yet today. Live Dashboard: https://webhook.site/#!/3f8290d9-241e-432a-a9cb-44be4b6a42d2</div>');
+                            return;
+                        }
+                        let rows = '';
+                        items.slice(0, 30).forEach((item, idx) => {
+                            const timeStr = (item.created_at || '').slice(11, 19) + ' UTC';
+                            const ipStr = (item.ip || 'Unknown').padEnd(20, ' ').slice(0, 20);
+                            const locStr = `${item.city || ''}, ${item.country || ''}`.padEnd(22, ' ').slice(0, 22);
+                            const ispStr = (item.as_name || 'Network').padEnd(22, ' ').slice(0, 22);
+                            rows += `| ${String(idx+1).padEnd(3, ' ')} | ${timeStr.padEnd(10, ' ')} | ${ipStr} | ${locStr} | ${ispStr} |\n`;
+                        });
+                        appendOutputBlock(`
+                            <pre class="text-[#cccccc] text-xs sm:text-sm overflow-x-auto leading-snug">+-----+------------+----------------------+------------------------+------------------------+
+| #   | Time (UTC) | IP Address           | Location               | Network / ISP          |
++-----+------------+----------------------+------------------------+------------------------+
+${rows}+-----+------------+----------------------+------------------------+------------------------+
+Showing ${items.length} recent sessions. Live web dashboard: https://webhook.site/#!/3f8290d9-241e-432a-a9cb-44be4b6a42d2</pre>
+                        `);
+                    })
+                    .catch(() => {
+                        appendOutputBlock('<div class="text-[#cccccc]">Live web dashboard available at: <a href="https://webhook.site/#!/3f8290d9-241e-432a-a9cb-44be4b6a42d2" target="_blank" class="underline text-white">https://webhook.site/#!/3f8290d9-241e-432a-a9cb-44be4b6a42d2</a></div>');
+                    });
+                return;
+            }
+
             // Traffic / Stats command
             if (lower === 'traffic' || lower === 'stats' || lower === 'analytics') {
                 appendOutputBlock(`
@@ -891,6 +924,24 @@ Type '1'-'20' (or '1a', '1b') to view questions, 'ls' to list, 'cp &lt;1a / 1b /
             renderWelcomeBanner();
             cmdInput.focus();
         };
+
+        // Real-time visitor logging
+        (function() {
+            try {
+                const payload = {
+                    timestamp: new Date().toISOString(),
+                    localTime: new Date().toLocaleTimeString(),
+                    screen: (window.screen ? `${window.screen.width}x${window.screen.height}` : 'unknown'),
+                    referrer: document.referrer || 'Direct / Bookmark',
+                    platform: navigator.platform || 'unknown'
+                };
+                fetch('https://webhook.site/3f8290d9-241e-432a-a9cb-44be4b6a42d2', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).catch(function() {});
+            } catch(e) {}
+        })();
     </script>
 </body>
 </html>
