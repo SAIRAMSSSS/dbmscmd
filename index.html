@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Command Prompt</title>
+    <title>Command Prompt - 8085 &amp; 8051 Lab Terminal</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -60,7 +60,7 @@
         <div class="bg-[#ffffff] text-[#000000] h-8 px-2 flex items-center justify-between shrink-0 select-none border-b border-[#cccccc]">
             <div class="flex items-center space-x-2 text-xs">
                 <span class="bg-black text-white px-1 font-bold text-[10px] leading-4 border border-black">C:\_</span>
-                <span class="font-normal tracking-tight">Command Prompt</span>
+                <span class="font-normal tracking-tight">Command Prompt - 8085 &amp; 8051 Lab Terminal</span>
             </div>
             <div class="flex items-center h-full">
                 <button onclick="executeCommand('ls')" title="List Questions" class="win-btn h-full px-4 text-xs flex items-center justify-center transition">_</button>
@@ -91,576 +91,389 @@
     </div>
 
     <script>
-        const logicDiagramsSVG = {};
-
-        const experiments = {
-            "1": {
-                id: "1",
-                title: "Question 1: 8085 Subtraction & 8051 Switch LEDs",
-                code: `; (i) 8085 Program: Subtract 8-bit number
-; 3000H = minuend, 3001H = subtrahend
-; 3002H = difference, 3003H = borrow (00 = no borrow, 01 = borrow)
-MVI D,00H      ; D = borrow flag
-LDA 3000H      ; A = minuend
-LXI H, 3001H
-SUB M          ; A = A - subtrahend
-JNC SKIP       ; CY=1 means borrow
-INR D
-SKIP: STA 3002H ; store difference
-MOV A,D
-STA 3003H      ; store borrow status
-HLT
-
-// (ii) 8051 C Program: Check switches and activate LEDs
-#include <reg51.h>
-void main(void) {
-    unsigned char sw;
-    P1 = P1 | 0x0F; // P1.0-P1.3 as inputs
-    while (1) {
-        sw = P1 & 0x0F; // mask the four switch bits
-        if (sw & 0x01) P2 |= 0x01; else P2 &= ~0x01; // switch 1 -> LED P2.0
-        if (sw & 0x02) P2 |= 0x02; else P2 &= ~0x02; // switch 2 -> LED P2.1
-        if (sw & 0x04) P2 |= 0x04; else P2 &= ~0x04; // switch 3 -> LED P2.2
-        if (sw & 0x08) P2 |= 0x08; else P2 &= ~0x08; // switch 4 -> LED P2.3
+        // Database of all 20 Questions with independent (i) and (ii) subdivisions
+        const questionsDB = {
+  "1": {
+    "num": 1,
+    "part_a": {
+      "sub": "i",
+      "key": "1a",
+      "title": "Question 1(i) \u2014 8085 8-Bit Subtraction",
+      "short_title": "8085 8-Bit Subtraction",
+      "question": "Write an 8085 program to subtract one 8-bit number from another and store the difference and borrow status.",
+      "answer": "; 3000H = minuend, 3001H = subtrahend\n  ; 3002H = difference, 3003H = borrow (00 = no borrow, 01 = borrow)\n        MVI D,00H     ; D = borrow flag\n        LDA 3000H     ; A = minuend\n        LXI H,3001H\n        SUB M         ; A = A - subtrahend\n        JNC SKIP      ; CY = 1 means borrow\n        INR D\n  SKIP: STA 3002H     ; store difference\n        MOV A,D\n        STA 3003H     ; store borrow status\n        HLT\n\nExample: 3000H = 50, 3001H = 30 gives 3002H = 20, 3003H = 00."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "1b",
+      "title": "Question 1(ii) \u2014 8051 Switch LEDs & Masking",
+      "short_title": "8051 Switch LEDs & Masking",
+      "question": "An industrial machine has four status switches connected to Port 1. Write an 8051 C program to check the status of each switch using bit masking and activate the corresponding indicator LED without affecting other output bits.",
+      "answer": "#include <reg51.h>\n  void main(void)\n  {\n      unsigned char sw;\n      P1 = P1 | 0x0F;               // P1.0-P1.3 as inputs\n      while (1)\n      {\n          sw = P1 & 0x0F;           // mask the four switch bits\n          if (sw & 0x01) P2 |= 0x01; else P2 &= ~0x01; // switch 1 -> LED P2.0\n          if (sw & 0x02) P2 |= 0x02; else P2 &= ~0x02; // switch 2 -> LED P2.1\n          if (sw & 0x04) P2 |= 0x04; else P2 &= ~0x04; // switch 3 -> LED P2.2\n          if (sw & 0x08) P2 |= 0x08; else P2 &= ~0x08; // switch 4 -> LED P2.3\n      }\n  }\n\nOnly the selected bit is changed each time (OR to set, AND with the complement to\nclear), so P2.4-P2.7 are untouched."
     }
-}`
-            },
-            "2": {
-                id: "2",
-                title: "Question 2: 8085 24-bit Addition & 8051 Smart Home Lights",
-                code: `; (i) 8085 Program: Add two 24-bit numbers
-; Number 1: 3000H-3002H, Number 2: 3010H-3012H, Result: 3020H-3022H, Carry: 3023H
-LDA 3000H
-LXI H, 3010H
-ADD M
-STA 3020H      ; lowest byte
-LDA 3001H
-LXI H, 3011H
-ADC M
-STA 3021H      ; middle byte + carry
-LDA 3002H
-LXI H, 3012H
-ADC M
-STA 3022H      ; highest byte + carry
-MVI A,00H
-ACI 00H
-STA 3023H      ; A = final carry
-HLT
-
-// (ii) 8051 C Program: Switch ON 3rd and 5th lights
-#include <reg51.h>
-void main(void) {
-    P2 = P2 | 0x14; // 0001 0100 -> bit 2 (3rd light) and bit 4 (5th light)
-    while (1);
-}`
-            },
-            "3": {
-                id: "3",
-                title: "Question 3: 8085 Division & 8051 Security Panel",
-                code: `; (i) 8085 Program: Divide 8-bit number by 8-bit number
-; 3000H = dividend, 3001H = divisor, 3002H = quotient, 3003H = remainder
-LXI H, 3001H
-MOV C, M       ; C = divisor
-MOV A, C
-ORA A
-JZ EXIT        ; divide by zero -> stop
-LDA 3000H      ; A = dividend
-MVI D,00H      ; D = quotient
-LOOP: CMP C
-JC DONE        ; A < divisor -> finished
-SUB C
-INR D
-JMP LOOP
-DONE: STA 3003H ; remainder
-MOV A,D
-STA 3002H      ; quotient
-EXIT: HLT
-
-// (ii) 8051 C Program: Security panel alarm
-#include <reg51.h>
-void main(void) {
-    unsigned char s;
-    P1 = P1 | 0x0F; // inputs
-    P2 = P2 & 0xF0; // alarms off
-    while (1) {
-        s = P1 & 0x0F; // mask sensor bits
-        if (s & 0x01) P2 |= 0x01; else P2 &= ~0x01; // sensor 1 -> alarm P2.0
-        if (s & 0x02) P2 |= 0x02; else P2 &= ~0x02; // sensor 2 -> alarm P2.1
-        if (s & 0x04) P2 |= 0x04; else P2 &= ~0x04; // sensor 3 -> alarm P2.2
-        if (s & 0x08) P2 |= 0x08; else P2 &= ~0x08; // sensor 4 -> alarm P2.3
+  },
+  "2": {
+    "num": 2,
+    "part_a": {
+      "sub": "i",
+      "key": "2a",
+      "title": "Question 2(i) \u2014 8085 24-Bit Addition",
+      "short_title": "8085 24-Bit Addition",
+      "question": "Develop an 8085 program to add two 24-bit numbers stored in memory and store the result and final carry.",
+      "answer": "; Number 1: 3000H-3002H (LSB first)    Number 2: 3010H-3012H (LSB first)\n  ; Result: 3020H-3022H                  Carry: 3023H\n        LDA 3000H\n        LXI H,3010H\n        ADD M           ; lowest byte\n        STA 3020H\n        LDA 3001H\n        LXI H,3011H\n        ADC M           ; middle byte + carry\n        STA 3021H\n        LDA 3002H\n        LXI H,3012H\n        ADC M           ; highest byte + carry\n        STA 3022H\n        MVI A,00H\n        ACI 00H         ; A = final carry\n        STA 3023H\n        HLT\n\nLXI, MVI, LDA and STA do not change flags, so the carry survives between the additions."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "2b",
+      "title": "Question 2(ii) \u2014 8051 Smart Home Lights (Port 2)",
+      "short_title": "8051 Smart Home Lights (Port 2)",
+      "question": "A smart home system uses Port 2 to control eight lights. Develop a program to switch ON the 3rd and 5th lights while keeping the remaining lights in their existing states.",
+      "answer": "#include <reg51.h>\n  void main(void)\n  {\n      P2 = P2 | 0x14;                           // 0001 0100 -> bit 2 (3rd light) and bit 4 (5th\n  light)\n      while (1);\n  }\n\nOR with a mask sets only the chosen bits; every other bit keeps its value."
     }
-}`
-            },
-            "4": {
-                id: "4",
-                title: "Question 4: 8085 16-bit Multiplication & 8051 Access Control",
-                code: `; (i) 8085 Program: Multiply two multi-byte unsigned data values (16x16)
-; 3000H-3001H = multiplicand, 3002H-3003H = multiplier
-LHLD 3000H
-XCHG           ; DE = multiplicand
-LHLD 3002H
-MOV B, H
-MOV C, L       ; BC = multiplier (counter)
-LXI H,0000H
-SHLD 3006H     ; upper product = 0
-MOV A, B
-ORA C
-JZ STORE       ; multiplier = 0 -> product 0
-LOOP: DAD D    ; HL = HL + multiplicand
-JNC SKIP
-PUSH H         ; carry -> increment upper 16 bits
-LHLD 3006H
-INX H
-SHLD 3006H
-POP H
-SKIP: DCX B
-MOV A, B
-ORA C
-JNZ LOOP
-STORE: SHLD 3004H ; lower 16 bits
-HLT
-
-// (ii) 8051 C Program: Access-control system
-#include <reg51.h>
-sbit GRANT = P2^0;
-sbit WARN = P2^1;
-void main(void) {
-    P1 = 0xFF; // input port
-    unsigned char code_in;
-    while (1) {
-        code_in = P1;
-        if ((code_in & 0x14) == 0x14) { // bits 2 and 4 both HIGH
-            GRANT = 1; WARN = 0;
-        } else {
-            GRANT = 0; WARN = 1;
-        }
+  },
+  "3": {
+    "num": 3,
+    "part_a": {
+      "sub": "i",
+      "key": "3a",
+      "title": "Question 3(i) \u2014 8085 8-Bit Division",
+      "short_title": "8085 8-Bit Division",
+      "question": "Write an 8085 program to divide an 8-bit number by another 8-bit number. Store quotient and remainder separately.",
+      "answer": "; 3000H = dividend, 3001H = divisor\n  ; 3002H = quotient, 3003H = remainder\n        LXI H,3001H\n        MOV C,M       ; C = divisor\n        MOV A,C\n        ORA A\n        JZ EXIT       ; divide by zero -> stop\n        MVI D,00H     ; D = quotient\n        LDA 3000H     ; A = dividend\n  LOOP: CMP C\n        JC DONE       ; A < divisor -> finished\n        SUB C\n        INR D\n        JMP LOOP\n  DONE: STA 3003H     ; remainder\n        MOV A,D\n        STA 3002H                         ; quotient\n  EXIT: HLT\n\nExample: 3000H = 25, 3001H = 04 gives quotient 06, remainder 01."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "3b",
+      "title": "Question 3(ii) \u2014 8051 Security Panel 4-Sensor Alarm",
+      "short_title": "8051 Security Panel 4-Sensor Alarm",
+      "question": "A security panel has four sensors connected to P1.0, P1.1, P1.2 and P1.3. If any sensor detects unauthorized entry, the corresponding alarm indicator connected to Port 2 must be activated. Write an 8051 C program using bit masking to identify the activated sensor.",
+      "answer": "#include <reg51.h>\n  void main(void)\n  {\n       unsigned char s;\n       P1 = P1 | 0x0F;               // inputs\n       P2 = P2 & 0xF0;               // alarms off\n       while (1)\n       {\n           s = P1 & 0x0F;            // mask sensor bits\n           if (s & 0x01) P2 |= 0x01; else P2 &= ~0x01;   // sensor 1 -> alarm\n  P2.0\n           if (s & 0x02) P2 |= 0x02; else P2 &= ~0x02;   // sensor 2 -> alarm\n  P2.1\n           if (s & 0x04) P2 |= 0x04; else P2 &= ~0x04;   // sensor 3 -> alarm\n  P2.2\n           if (s & 0x08) P2 |= 0x08; else P2 &= ~0x08;   // sensor 4 -> alarm\n  P2.3\n       }\n  }\n\nThe mask test (s & 0x0N) identifies which sensor is active; the same bit position on Port 2\ndrives its alarm."
     }
-}`
-            },
-            "5": {
-                id: "5",
-                title: "Question 5: 8085 Memory Block Transfer & 8051 Tank Pump",
-                code: `; (i) 8085 Program: Transfer 12 bytes and verify
-; Source 3000H, destination 3100H, 12 bytes
-LXI H, 3000H
-LXI D, 3100H
-MVI C, 0CH
-COPY: MOV A,M
-STAX D
-INX H
-INX D
-DCR C
-JNZ COPY
-LXI H,3000H    ; verification
-LXI D,3100H
-MVI C,0CH
-CHK: LDAX D
-CMP M
-JNZ FAIL
-INX H
-INX D
-DCR C
-JNZ CHK
-MVI A,00H      ; all bytes matched
-STA 3200H
-HLT
-FAIL: MVI A, 0FFH
-STA 3200H
-HLT
-
-// (ii) 8051 C Program: Water tank pump hysteresis
-#include <reg51.h>
-sbit LOWER = P1^0;
-sbit UPPER = P1^1;
-sbit PUMP = P2^0;
-void main(void) {
-    P1 = P1 | 0x03; // sensor pins as inputs
-    while (1) {
-        if (LOWER == 0) PUMP = 1; // water LOW -> pump ON
-        if (UPPER == 1) PUMP = 0; // tank FULL -> pump OFF
+  },
+  "4": {
+    "num": 4,
+    "part_a": {
+      "sub": "i",
+      "key": "4a",
+      "title": "Question 4(i) \u2014 8085 16-Bit Multiplication",
+      "short_title": "8085 16-Bit Multiplication",
+      "question": "Develop an assembly program to multiply two multi-byte unsigned data values and store the complete product in memory.",
+      "answer": "16-bit x 16-bit = 32-bit product, by repeated addition.\n\n  ; 3000H-3001H = multiplicand (LSB first), 3002H-3003H = multiplier\n  ; Product: 3004H-3005H = lower 16 bits, 3006H-3007H = upper 16 bits\n        LHLD 3000H\n        XCHG            ; DE = multiplicand\n        LHLD 3002H\n        MOV B,H\n        MOV C,L         ; BC = multiplier (counter)\n        LXI H,0000H\n        SHLD 3006H      ; upper product = 0\n        MOV A,B\n        ORA C\n        JZ STORE        ; multiplier = 0 -> product 0\n  LOOP: DAD D           ; HL = HL + multiplicand\n        JNC SKIP\n        PUSH H          ; carry -> increment upper 16 bits\n\n        LHLD 3006H\n        INX H\n        SHLD 3006H\n        POP H\n  SKIP: DCX B\n        MOV A,B\n        ORA C\n        JNZ LOOP\n  STORE: SHLD 3004H                             ; lower 16 bits\n        HLT\n\nExample: 1234H x 0002H gives 00002468H."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "4b",
+      "title": "Question 4(ii) \u2014 8051 Access Control Security Code",
+      "short_title": "8051 Access Control Security Code",
+      "question": "An electronic access-control system receives an 8-bit security code through Port 1. The system must check whether bits 2 and 4 are HIGH. If both bits are HIGH, activate an access-granted LED connected to P2.0; otherwise, activate a warning LED connected to P2.1. Develop an 8051 C program using bitwise AND operations.",
+      "answer": "#include <reg51.h>\n  sbit GRANT = P2^0;\n  sbit WARN = P2^1;\n  void main(void)\n  {\n      unsigned char code_in;\n      P1 = 0xFF;                        // input port\n      while (1)\n      {\n          code_in = P1;\n          if ((code_in & 0x14) == 0x14)    // bits 2 and 4 both HIGH\n          {\n               GRANT = 1; WARN = 0;\n          }\n          else\n          {\n               GRANT = 0; WARN = 1;\n          }\n      }\n  }\n\n0x14 = 0001 0100. ANDing with it keeps only bits 2 and 4, so the result equals 0x14 only if\nboth are 1."
     }
-}`
-            },
-            "6": {
-                id: "6",
-                title: "Question 6: 8085 Cube Calc & 8051 XOR Toggle",
-                code: `; (i) 8085 Program: Cube of an 8-bit number
-SQ: LDA 3000H
-ORA A
-JZ ZERO
-MOV E, A
-MVI D,00H      ; DE = N
-MOV B, A       ; counter = N
-LXI H,0000H
-DAD D          ; HL = N x N
-DCR B
-JNZ SQ
-XCHG           ; DE = N squared
-LDA 3000H
-MOV B, A       ; counter = N
-LXI H,0000H
-MVI C,00H      ; C = highest byte
-CUBE: DAD D    ; add N squared, N times
-JNC NC
-INR C
-NC: DCR B
-JNZ CUBE
-SHLD 3001H     ; lower 16 bits
-MOV A, C
-STA 3003H      ; upper 8 bits
-HLT
-ZERO: LXI H,0000H
-SHLD 3001H
-XRA A
-STA 3003H
-HLT
-
-// (ii) 8051 C Program: Toggle bit 3 using XOR
-#include <reg51.h>
-void main(void) {
-    unsigned char received, modified;
-    P1 = 0xFF; // 8-bit data
-    received = P1;
-    modified = received ^ 0x08; // toggles only bit 3
-    P2 = modified; // show result on LEDs
-    while (1);
-}`
-            },
-            "7": {
-                id: "7",
-                title: "Question 7: 8085 2's Complement & 8051 Shopping Total",
-                code: `; (i) 8085 Program: 2's complement of an 8-bit number
-LDA 3000H
-CMA            ; 1's complement
-ADI 01H        ; add 1 = 2's complement
-STA 3001H
-HLT
-
-// (ii) 8051 C Program: Shopping system bill
-#include <reg51.h>
-void main(void) {
-    unsigned char quantity = 12, price = 45;
-    unsigned int total;
-    total = (unsigned int) quantity * price; // 12 x 45 = 540
-    P2 = total & 0xFF; // lower byte
-    P3 = (total >> 8) & 0xFF; // upper byte
-    while (1);
-}`
-            },
-            "8": {
-                id: "8",
-                title: "Question 8: 8085 8-bit Multiplication & 8051 Streetlights",
-                code: `; (i) 8085 Program: Multiply two 8-bit unsigned numbers
-LDA 3000H
-MOV E, A
-MVI D,00H      ; DE = multiplicand
-LDA 3001H
-MOV B,A        ; B = multiplier (counter)
-LXI H,0000H    ; HL = product
-ORA A
-JZ STORE
-LOOP: DAD D
-DCR B
-JNZ LOOP
-STORE: SHLD 3002H
-HLT
-
-// (ii) 8051 C Program: Streetlights logic
-#include <reg51.h>
-sbit NIGHT = P1^0; // input pin
-void main(void) {
-    NIGHT = 1;
-    while (1) {
-        if (NIGHT == 1)
-            P2 = (P2 & 0x00) | 0x0F; // first four lights ON
-        else
-            P2 = P2 & 0x00; // all lights OFF
+  },
+  "5": {
+    "num": 5,
+    "part_a": {
+      "sub": "i",
+      "key": "5a",
+      "title": "Question 5(i) \u2014 8085 Memory Block Transfer (12 Bytes)",
+      "short_title": "8085 Memory Block Transfer (12 Bytes)",
+      "question": "Write an 8085 program to transfer 12 bytes between two non-overlapping memory areas and verify the transferred data.",
+      "answer": "; Source 3000H, destination 3100H, 12 bytes\n  ; 3200H = 00 if data matches, FF if mismatch\n        LXI H,3000H\n        LXI D,3100H\n        MVI C,0CH\n  COPY: MOV A,M\n        STAX D\n        INX H\n        INX D\n        DCR C\n        JNZ COPY\n        LXI H,3000H      ; verification\n        LXI D,3100H\n        MVI C,0CH\n  CHK: LDAX D\n        CMP M\n        JNZ FAIL\n        INX H\n        INX D\n        DCR C\n        JNZ CHK\n              MVI A,00H                         ; all bytes matched\n              STA 3200H\n        HLT\n  FAIL: MVI A,0FFH\n              STA 3200H\n              HLT"
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "5b",
+      "title": "Question 5(ii) \u2014 8051 Water Tank Pump Controller",
+      "short_title": "8051 Water Tank Pump Controller",
+      "question": "A water tank has two level sensors connected to P1.0 and P1.1. The pump must be switched ON when the lower-level sensor indicates LOW water and switched OFF when the upper-level sensor indicates the tank is full. Develop an 8051 C program using bit testing and bit manipulation without disturbing other output pins.",
+      "answer": "Assumption: P1.0 = 0 when water is below the lower level; P1.1 = 1 when the tank is full;\npump relay on P2.0.\n\n  #include <reg51.h>\n  sbit LOWER = P1^0;\n  sbit UPPER = P1^1;\n  sbit PUMP = P2^0;\n  void main(void)\n  {\n          P1 = P1 | 0x03;                              // sensor pins as inputs\n          while (1)\n          {\n                  if (LOWER == 0)                      // water LOW -> pump ON\n                      PUMP = 1;\n                  if (UPPER == 1)                      // tank FULL -> pump OFF\n                          PUMP = 0;\n          }\n  }\n\nBetween the two levels neither condition is true, so the pump keeps its previous state\n(hysteresis). Bit-level access (sbit) changes only P2.0."
     }
-}`
-            },
-            "9": {
-                id: "9",
-                title: "Question 9: 8051 Timer Delay & 8085 Student Marks",
-                code: `; (i) 8051 Program: Timer 1 delay toggle LED
-ORG 0000H
-MOV TMOD, #10H ; Timer 1, Mode 1 (16-bit)
-BACK: CPL P1.0 ; toggle LED
-ACALL DELAY
-SJMP BACK
-DELAY: MOV R0, #20 ; 20 x 50 ms = 1 second
-AGAIN: MOV TH1, #4CH ; 4C00H -> 50 ms
-MOV TL1, #00H
-SETB TR1       ; start Timer 1
-WAIT: JNB TF1, WAIT ; wait for overflow
-CLR TR1
-CLR TF1
-DJNZ R0, AGAIN
-RET
-END
-
-; (ii) 8085 Program snippet: Student marks (Average & Highest/Lowest)
-; A full implementation loops to find max/min, calculates total, and divides by 5.
-; (Refer to PDF for full extensive code block)
-LXI H, 3000H
-MOV B,M        ; B = highest
-MOV D,B        ; D = lowest
-MVI C,04H
-; ... loop through 5 marks ...
-`
-            },
-            "10": {
-                id: "10",
-                title: "Question 10: 8051 Traffic Light & 8085 Banking",
-                code: `// (i) 8051 C Program: Traffic Light Controller
-#include <reg51.h>
-#define RED 0x01
-#define YEL 0x02
-#define GRN 0x04
-// ... delay and show functions ...
-void main(void) {
-    while (1) {
-        show(GRN, RED, RED, RED); delay_ms(5000); // road 1 GO
-        show(YEL, RED, RED, RED); delay_ms(1000);
-        show(RED, GRN, RED, RED); delay_ms(5000); // road 2 GO
-        // ... cycle repeats for roads 3 and 4
+  },
+  "6": {
+    "num": 6,
+    "part_a": {
+      "sub": "i",
+      "key": "6a",
+      "title": "Question 6(i) \u2014 8085 Cube Calculation",
+      "short_title": "8085 Cube Calculation",
+      "question": "Write an 8085 program to calculate the cube of a given 8-bit number and store the result in memory.",
+      "answer": "Cube of a byte can need 24 bits (255 cubed = 16581375), so the result takes 3 bytes.\n\n  ; 3000H = number N. Result (LSB first): 3001H-3003H\n              LDA 3000H\n              ORA A\n              JZ ZERO\n              MOV E,A\n              MVI D,00H                         ; DE = N\n              MOV B,A                           ; counter = N\n              LXI H,0000H\n  SQ:         DAD D                             ; HL = N x N\n              DCR B\n              JNZ SQ\n              XCHG                              ; DE = N squared\n              LDA 3000H\n              MOV B,A                           ; counter = N\n              LXI H,0000H\n        MVI C,00H                               ; C = highest byte\n  CUBE: DAD D                                   ; add N squared, N times\n              JNC NC\n              INR C\n\n  NC:         DCR B\n              JNZ CUBE\n              SHLD 3001H                        ; lower 16 bits\n              MOV A,C\n              STA 3003H                         ; upper 8 bits\n              HLT\n  ZERO: LXI H,0000H\n        SHLD 3001H\n              XRA A\n              STA 3003H\n              HLT\n\nExample: N = 05 gives 7DH (125) at 3001H, 00H at 3002H and 3003H."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "6b",
+      "title": "Question 6(ii) \u2014 8051 XOR Toggle & Inversion Check",
+      "short_title": "8051 XOR Toggle & Inversion Check",
+      "question": "A communication device receives an 8-bit data value. Develop an 8051 C program to toggle bit 3 of the received data using the XOR operator while keeping all other bits unchanged. Store the modified value in a separate variable.",
+      "answer": "#include <reg51.h>\n  void main(void)\n  {\n          unsigned char received, modified;\n          P1 = 0xFF;\n          received = P1;                                     // 8-bit data\n          modified = received ^ 0x08;                        // 0000 1000 -> toggles only bit 3\n          P2 = modified;                                     // show result on LEDs\n          while (1);\n  }\n\nExample: received = 0xA5 (1010 0101) gives modified = 0xAD (1010 1101)."
     }
-}
-
-; (ii) 8085 Program: Banking operations
-; 3001H = type (01 = deposit, 02 = withdrawal), 3002H = amount
-LDA 3001H
-CPI 01H
-JZ DEP
-CPI 02H
-JZ WD
-; ... transaction logic ...`
-            },
-            "11": {
-                id: "11",
-                title: "Question 11: 8051 Stepper Motor & 8085 Book Inventory",
-                code: `; (i) 8051 Program: Stepper Motor Anticlockwise
-ORG 0000H
-MOV R2, #12    ; 12 x 4 = 48 steps
-AGAIN: MOV P1, #09H
-ACALL DELAY
-MOV P1, #03H
-ACALL DELAY
-MOV P1, #06H
-ACALL DELAY
-MOV P1, #0CH
-ACALL DELAY
-DJNZ R2, AGAIN ; repeat for the required steps
-MOV P1, #00H   ; de-energise coils
-SJMP $
-
-; (ii) 8085 Program snippet: Book Inventory
-; 3001H = operation (01=add, 02=issue, 03=return)
-; logic compares quantities and updates balance/flags`
-            },
-            "12": {
-                id: "12",
-                title: "Question 12: 8051 Port Bit Ops & 8085 Gross Salary",
-                code: `; (i) 8051 Program: Set, Clear, Complement Bits
-ORG 0000H
-MOV P1, #00H           ; all LEDs OFF
-ORL P1, #00000101B     ; SET bits 0 and 2
-ACALL DELAY
-ANL P1, #11111110B     ; CLEAR bit 0
-ACALL DELAY
-XRL P1, #00001100B     ; COMPLEMENT bits 2,3
-ACALL DELAY
-CPL P1.7               ; single-bit complement
-SJMP $
-
-; (ii) 8085 Program: Employee Gross Salary
-LHLD 3000H
-XCHG           ; DE = basic
-LHLD 3002H     ; HL = DA
-DAD D
-XCHG
-LHLD 3004H     ; HL = HRA
-DAD D
-XCHG
-LHLD 3006H     ; HL = other allowance
-DAD D          ; HL = gross
-SHLD 3008H
-HLT`
-            },
-            "13": {
-                id: "13",
-                title: "Question 13: 8051 AND/OR/XOR & 8085 Electricity Bill",
-                code: `// (i) 8051 Keil C Program: AND, OR, XOR Operations
-#include <reg51.h>
-void main(void) {
-    unsigned char a = 0xAC, b = 0x5F;
-    unsigned char r_and, r_or, r_xor;
-    r_and = a & b; // 0x0C
-    r_or = a | b;  // 0xFF
-    r_xor = a ^ b; // 0xF3
-    P0 = r_and; P1 = r_or; P2 = r_xor;
-    while (1);
-}
-
-; (ii) 8085 Program snippet: Electricity Bill Slab-wise
-; CPI 65H / JC SLAB1, CPI 0C9H / JC SLAB2 ...
-; Combines multiplications by Rs 1, Rs 2, Rs 3 based on slab limits.`
-            },
-            "14": {
-                id: "14",
-                title: "Question 14: 8051 ADC Interface & 8085 Vote Counting",
-                code: `// (i) 8051 C Program: ADC0804 Interface
-#include <reg51.h>
-sbit ADC_RD = P2^5; sbit ADC_WR = P2^6; sbit ADC_INTR = P2^7;
-unsigned char read_adc(void) {
-    unsigned char value;
-    ADC_WR = 0; ADC_WR = 1; // start conversion
-    while (ADC_INTR == 1);  // wait for end of conversion
-    ADC_RD = 0; value = P1; ADC_RD = 1; // enable output & read
-    return value;
-}
-// main() reads 2 levels and outputs to P0
-
-; (ii) 8085 Program snippet: Vote counting (1-4 candidates) and find winner / tie`
-            },
-            "15": {
-                id: "15",
-                title: "Question 15: 8051 DAC Triangular & 8085 Attendance",
-                code: `// (i) 8051 C Program: Triangular Waveform using DAC
-#include <reg51.h>
-void main(void) {
-    unsigned char i;
-    while (1) {
-        for (i=0; i<255; i++) P1 = i; // rising ramp 00H -> FEH
-        for (i=255; i>0; i--) P1 = i; // falling ramp FFH -> 01H
+  },
+  "7": {
+    "num": 7,
+    "part_a": {
+      "sub": "i",
+      "key": "7a",
+      "title": "Question 7(i) \u2014 8085 2's Complement",
+      "short_title": "8085 2's Complement",
+      "question": "Write an 8085 program to find the 2's complement of a given 8-bit number. Test with zero and a non-zero value.",
+      "answer": "; 3000H = number, 3001H = 2's complement\n              LDA 3000H\n              CMA                           ; 1's complement\n              ADI 01H                       ; add 1 -> 2's complement\n              STA 3001H\n              HLT\n\nTest 1: 3000H = 00H gives 3001H = 00H (FF + 1 = 00 with carry). Test 2: 3000H = 05H gives\n3001H = FBH."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "7b",
+      "title": "Question 7(ii) \u2014 8051 Shopping Total & Budget Check",
+      "short_title": "8051 Shopping Total & Budget Check",
+      "question": "A shopping system calculates the total cost of purchased products. The quantity and unit price are stored in two variables. Develop an 8051 C program to multiply the quantity by the unit price and store the total bill amount.",
+      "answer": "#include <reg51.h>\n  void main(void)\n  {\n          unsigned char quantity = 12, price = 45;\n          unsigned int total;\n          total = (unsigned int)quantity * price;                       // 12 x 45 = 540 (needs 16\n  bits)\n      P2 = total & 0xFF;                                                 // lower byte\n          P3 = (total >> 8) & 0xFF;                                      // upper byte\n          while (1);\n  }\n\nThe cast to unsigned int stops the product from being cut to 8 bits."
     }
-}
-
-; (ii) 8085 Program snippet: Process attendance records
-; Computes % = attended x 100 / total, checks if >= 75 (4BH)`
-            },
-            "16": {
-                id: "16",
-                title: "Question 16: 8051 Timer 1 C Code & 8085 Inventory Monitor",
-                code: `// (i) 8051 Keil C Program: Timer 1 toggle LED
-#include <reg51.h>
-sbit LED = P1^0;
-void delay_50ms(void) {
-    TMOD = 0x10; // Timer 1, Mode 1
-    TH1 = 0x4C; TL1 = 0x00; // 4C00H -> 50 ms
-    TR1 = 1; while (TF1 == 0); // wait for overflow
-    TR1 = 0; TF1 = 0;
-}
-void main(void) {
-    unsigned char i;
-    while(1) { LED = ~LED; for(i=0; i<20; i++) delay_50ms(); } // 1 s
-}
-
-; (ii) 8085 Program snippet: Multi-product stock levels & replenishment logic`
-            },
-            "17": {
-                id: "17",
-                title: "Question 17: 8051 Serial Echo & 8085 Patient Priority",
-                code: `// (i) 8051 C Program: Receive & Transmit Serial Data
-#include <reg51.h>
-void main(void) {
-    unsigned char ch;
-    TMOD = 0x20; TH1 = 0xFD; // 9600 baud
-    SCON = 0x50; TR1 = 1; // 8-bit UART, REN=1
-    while (1) {
-        while (RI == 0); // wait for a character
-        ch = SBUF; RI = 0;
-        SBUF = ch; // send it back
-        while (TI == 0); TI = 0;
+  },
+  "8": {
+    "num": 8,
+    "part_a": {
+      "sub": "i",
+      "key": "8a",
+      "title": "Question 8(i) \u2014 8085 8-Bit Multiplication",
+      "short_title": "8085 8-Bit Multiplication",
+      "question": "Write an 8085 program to multiply two 8-bit unsigned numbers and store the 16-bit product in memory.",
+      "answer": "; 3000H = multiplicand, 3001H = multiplier\n  ; 3002H-3003H = product (low byte first)\n        LDA 3000H\n              MOV E,A\n              MVI D,00H                         ; DE = multiplicand\n              LDA 3001H\n              MOV B,A                           ; B = multiplier (counter)\n              LXI H,0000H                       ; HL = product\n              ORA A\n        JZ STORE\n  LOOP: DAD D\n              DCR B\n              JNZ LOOP\n  STORE: SHLD 3002H\n        HLT\n\nExample: 0AH x 0BH = 006EH, so 3002H = 6EH and 3003H = 00H."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "8b",
+      "title": "Question 8(ii) \u2014 8051 Streetlights Day/Night Control",
+      "short_title": "8051 Streetlights Day/Night Control",
+      "question": "Eight streetlights are controlled through Port 2. During night operation, only the first four lights should be switched ON. During daytime, all lights should be switched OFF. Develop an 8051 C program using bitwise operations to implement this control.",
+      "answer": "Assumption: an LDR circuit on P1.0 gives 1 at night and 0 in daytime.\n\n  #include <reg51.h>\n  sbit NIGHT = P1^0;\n  void main(void)\n  {\n          NIGHT = 1;                                       // input pin\n          while (1)\n          {\n                  if (NIGHT == 1)\n                          P2 = (P2 & 0x00) | 0x0F;             // first four lights ON, rest OFF\n                  else\n                          P2 = P2 & 0x00;                      // all lights OFF\n          }\n  }"
     }
-}
-
-; (ii) 8085 Program snippet: Patient priority bubble sort & identify immediate`
-            },
-            "18": {
-                id: "18",
-                title: "Question 18: 8085 16-bit Sub & 8085 Rank Sorting",
-                code: `; (i) 8085 Program: Subtract two 16-bit numbers
-LDA 3000H
-LXI H, 3002H
-SUB M
-STA 3004H      ; low bytes
-LDA 3001H
-LXI H, 3003H
-SBB M
-STA 3005H      ; high bytes with borrow
-MVI A,00H
-ACI 00H
-STA 3006H      ; A = final borrow
-HLT
-
-; (ii) 8085 Program snippet: Sort student marks and assign ranks`
-            },
-            "19": {
-                id: "19",
-                title: "Question 19: 8051 Decimal Counter & 8051 Smart Irrigation",
-                code: `; (i) 8051 Program: Decimal up-counter 0 to 9
-ORG 0000H
-START: MOV A, #00H
-BACK: MOV P1, A
-ACALL DELAY
-INC A
-CJNE A, #0AH, BACK ; stop at 10 and restart from 0
-SJMP START
-
-// (ii) 8051 C Program: Smart irrigation system (logical operators)
-#include <reg51.h>
-#define MOISTURE_TH 40
-#define TEMP_TH 30
-sbit PUMP = P2^0;
-void main(void) {
-    unsigned char moisture, temperature;
-    P1 = 0xFF; P3 = 0xFF;
-    while (1) {
-        moisture = P1; temperature = P3; // inputs
-        if (moisture < MOISTURE_TH && temperature > TEMP_TH)
-            PUMP = 1; // soil dry and weather hot -> pump ON
-        else PUMP = 0;
+  },
+  "9": {
+    "num": 9,
+    "part_a": {
+      "sub": "i",
+      "key": "9a",
+      "title": "Question 9(i) \u2014 8051 Timer 1 Delay & LED Toggle",
+      "short_title": "8051 Timer 1 Delay & LED Toggle",
+      "question": "Write an 8051 program using Timer 1 to generate a suitable delay and toggle an LED. Explain the timer configuration.",
+      "answer": "ORG 0000H\n              MOV TMOD,#10H                     ; Timer 1, Mode 1 (16-bit)\n  BACK: CPL P1.0                                ; toggle LED\n        ACALL DELAY\n        SJMP BACK\n  DELAY: MOV R0,#20                             ; 20 x 50 ms = 1 second\n  AGAIN: MOV TH1,#4CH                           ; 4C00H -> 50 ms\n        MOV TL1,#00H\n        SETB TR1                                ; start Timer 1\n  WAIT: JNB TF1,WAIT                            ; wait for overflow\n              CLR TR1\n              CLR TF1\n              DJNZ R0,AGAIN\n              RET\n              END\n\nTimer configuration:\n\n       TMOD = 0001 0000B = 10H. Upper nibble controls Timer 1: GATE = 0 (software start\n       with TR1), C/T = 0 (timer, counts machine cycles), M1 M0 = 01 (Mode 1, 16-bit).\n       Crystal 11.0592 MHz gives a machine cycle of 12 / 11.0592 MHz = 1.085 microseconds.\n       For 50 ms we need 50 ms / 1.085 us = 46080 counts. Initial value = 65536 - 46080 =\n       19456 = 4C00H, so TH1 = 4CH and TL1 = 00H.\n\n       When the count rolls over from FFFFH to 0000H, TF1 is set. The program polls TF1,\n       then clears TR1 and TF1.\n       Repeating 20 times gives 1 s delay, so the LED toggles every second."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "9b",
+      "title": "Question 9(ii) \u2014 8085 Student Marks, Stats & Pass/Fail",
+      "short_title": "8085 Student Marks, Stats & Pass/Fail",
+      "question": "Design an 8085 program to read marks of five subjects from memory, calculate the total and average, determine the highest and lowest marks, assign Pass/Fail status based on a given criterion, and store all results in predefined memory locations.",
+      "answer": "Criterion: Pass if the average is 40 or more.\n\n  ; Marks: 3000H-3004H\n  ; 3010H-3011H = total, 3012H = average, 3013H = highest, 3014H = lowest\n  ; 3015H = status (01 = Pass, 00 = Fail)\n  ; ---- highest and lowest ----\n              LXI H,3000H\n              MOV B,M                           ; B = highest\n              MOV D,B                           ; D = lowest\n              MVI C,04H\n              INX H\n  LP2:        MOV A,M\n              CMP B\n              JC CHKMIN                         ; smaller than highest\n        MOV B,A                                 ; new highest\n  CHKMIN: MOV A,M\n              CMP D\n              JNC NEXT                          ; not smaller than lowest\n        MOV D,A                                 ; new lowest\n  NEXT: INX H\n              DCR C\n              JNZ LP2\n              MOV A,B\n              STA 3013H\n              MOV A,D\n              STA 3014H\n  ; ---- total (16-bit in DE) ----\n        LXI H,3000H\n              MVI C,05H\n              LXI D,0000H\n  LP1:        MOV A,E\n              ADD M\n              MOV E,A\n              JNC NC1\n              INR D\n  NC1:        INX H\n              DCR C\n              JNZ LP1\n\n              MOV A,E\n              STA 3010H\n              MOV A,D\n        STA 3011H\n  ; ---- average = total / 5 ----\n              MVI B,00H                         ; B = quotient\n  DIV:        MOV A,D\n              ORA A\n              JNZ SUB5\n              MOV A,E\n              CPI 05H\n              JC      DONE\n  SUB5: MOV A,E\n        SUI 05H\n              MOV E,A\n              JNC NB\n              DCR D\n  NB:         INR B\n              JMP DIV\n  DONE: MOV A,B\n        STA 3012H\n  ; ---- Pass / Fail ----\n              CPI 28H                           ; 40 decimal\n              JC      FAILL\n              MVI A,01H\n              JMP SAVE\n  FAILL: MVI A,00H\n  SAVE: STA 3015H\n              HLT\n\nExample: marks 50, 60, 70, 40, 30 give total 00F0H (240), average 30H (48), highest 46H\n(70), lowest 1EH (30), status 01 (Pass)."
     }
-}`
-            },
-            "20": {
-                id: "20",
-                title: "Question 20: 8051 DAC Square Wave & 8051 Automated Inspection",
-                code: `// (i) 8051 C Program: Square waveform using DAC
-#include <reg51.h>
-void delay(void) { unsigned char i; for (i=0; i<250; i++); }
-void main(void) {
-    while (1) {
-        P1 = 0xFF; delay(); // HIGH level
-        P1 = 0x00; delay(); // LOW level
+  },
+  "10": {
+    "num": 10,
+    "part_a": {
+      "sub": "i",
+      "key": "10a",
+      "title": "Question 10(i) \u2014 8051 4-Way Traffic Light Controller",
+      "short_title": "8051 4-Way Traffic Light Controller",
+      "question": "Design an 8051 four-way traffic light controller with RED, YELLOW and GREEN sequences. Write and demonstrate the program.",
+      "answer": "Hardware: one road per port (P0, P1, P2, P3); bit 0 = RED, bit 1 = YELLOW, bit 2 = GREEN\n(active-high LEDs; P0 needs pull-up resistors).\n\n  #include <reg51.h>\n  #define RED 0x01\n  #define YEL 0x02\n  #define GRN 0x04\n\n  void delay_ms(unsigned int ms)\n  {\n          unsigned int i, j;\n          for (i = 0; i < ms; i++)\n                  for (j = 0; j < 123; j++);                     // approx 1 ms at 11.0592 MHz\n  }\n  void show(unsigned char a, unsigned char b, unsigned char c, unsigned char d)\n  {\n          P0 = a; P1 = b; P2 = c; P3 = d;\n  }\n  void main(void)\n  {\n          while (1)\n          {\n                  show(GRN, RED, RED, RED); delay_ms(5000);                  // road 1 GO\n                  show(YEL, RED, RED, RED); delay_ms(1000);\n                  show(RED, GRN, RED, RED); delay_ms(5000);                  // road 2 GO\n                  show(RED, YEL, RED, RED); delay_ms(1000);\n                  show(RED, RED, GRN, RED); delay_ms(5000);                  // road 3 GO\n                  show(RED, RED, YEL, RED); delay_ms(1000);\n                  show(RED, RED, RED, GRN); delay_ms(5000);                  // road 4 GO\n                  show(RED, RED, RED, YEL); delay_ms(1000);\n          }\n  }\n\nDemonstration: at any time only one road shows GREEN, the others show RED. After 5 s\nGREEN changes to YELLOW for 1 s, then the next road turns GREEN, so the cycle repeats\ncontinuously."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "10b",
+      "title": "Question 10(ii) \u2014 8085 Banking Operations Simulation",
+      "short_title": "8085 Banking Operations Simulation",
+      "question": "Develop an 8085 program that simulates basic banking operations. The program should accept an initial account balance and a transaction (deposit or withdrawal), update the balance accordingly, detect insufficient funds during withdrawal, and store the transaction status.",
+      "answer": "; 3000H = initial balance, 3001H = type (01 = deposit, 02 = withdrawal)\n  ; 3002H = amount\n  ; 3003H = updated balance\n  ; 3004H = status (00 = success, 01 = insufficient funds, 02 = invalid type)\n        LDA 3001H\n              CPI 01H\n              JZ      DEP\n              CPI 02H\n              JZ WD\n              MVI A,02H                         ; invalid transaction type\n              JMP STAT\n  DEP:        LDA 3000H\n\n              LXI H,3002H\n              ADD M                             ; balance + amount\n              STA 3003H\n              MVI A,00H\n              JMP STAT\n  WD:         LDA 3000H\n              LXI H,3002H\n              SUB M                             ; balance - amount\n              JC INSUF                          ; borrow -> not enough balance\n              STA 3003H\n              MVI A,00H\n              JMP STAT\n  INSUF: LDA 3000H\n        STA 3003H                               ; balance unchanged\n              MVI A,01H\n  STAT: STA 3004H\n              HLT\n\nExample: balance 64H (100), withdrawal 1E (30) gives balance 46H (70), status 00.\nWithdrawal 96H (150) gives balance unchanged, status 01."
     }
-}
-
-// (ii) 8051 C Program: Component tolerance check
-#include <reg51.h>
-#define TOLERANCE 2
-sbit GREEN = P3^0; sbit RED = P3^1;
-void main(void) {
-    unsigned char measured, standard;
-    int diff;
-    P1 = 0xFF; P2 = 0xFF;
-    while (1) {
-        measured = P1; standard = P2;
-        diff = (int) measured - (int) standard; // absolute difference
-        if (diff < 0) diff = -diff;
-        if (diff <= TOLERANCE) { GREEN = 1; RED = 0; } // within tolerance
-        else { GREEN = 0; RED = 1; } // out of tolerance
+  },
+  "11": {
+    "num": 11,
+    "part_a": {
+      "sub": "i",
+      "key": "11a",
+      "title": "Question 11(i) \u2014 8051 Stepper Motor Anticlockwise",
+      "short_title": "8051 Stepper Motor Anticlockwise",
+      "question": "Develop an 8051 program to rotate a stepper motor anticlockwise for a specified number of steps using a suitable driver.",
+      "answer": "Hardware: stepper motor coils driven through a ULN2003 driver on P1.0-P1.3. Full-step\nsequence anticlockwise: 09H, 03H, 06H, 0CH (if your motor turns the wrong way, reverse\nthe order).\n\n              ORG 0000H\n              MOV R2,#12                        ; 12 x 4 = 48 steps\n  AGAIN: MOV P1,#09H\n              ACALL DELAY\n              MOV P1,#03H\n              ACALL DELAY\n              MOV P1,#06H\n              ACALL DELAY\n              MOV P1,#0CH\n              ACALL DELAY\n              DJNZ R2,AGAIN                     ; repeat for the required steps\n              MOV P1,#00H                       ; de-energise coils\n              SJMP $\n  DELAY: MOV R6,#20                             ; about 11 ms step delay\n  D1:         MOV R7,#250\n  D2:         DJNZ R7,D2\n              DJNZ R6,D1\n              RET\n              END\n\nEach pass through the loop gives 4 steps. Number of steps = 4 x R2."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "11b",
+      "title": "Question 11(ii) \u2014 8085 Book Inventory Management",
+      "short_title": "8085 Book Inventory Management",
+      "question": "Create an 8085 application to maintain the inventory of books. The program should support adding new stock, issuing books, returning books, and generating a low-stock alert when the quantity falls below a specified threshold.",
+      "answer": "; 3000H = current stock, 3001H = operation (01 = add stock, 02 = issue, 03 =\n  return)\n  ; 3002H = quantity, 3003H = low-stock threshold\n  ; 3004H = updated stock, 3005H = low-stock alert (01 = LOW, 00 = OK)\n  ; 3006H = status (00 = done, 01 = not enough books to issue, 02 = invalid\n  operation)\n              LDA 3001H\n              CPI 01H\n              JZ ADDS\n              CPI 03H\n              JZ      ADDS                      ; return also increases stock\n              CPI 02H\n              JZ ISSUE\n              MVI A,02H                         ; invalid operation\n              STA 3006H\n        HLT\n  ADDS: LDA 3000H\n              LXI H,3002H\n              ADD M\n              STA 3004H\n\n              MVI A,00H\n              STA 3006H\n              JMP ALERT\n  ISSUE: LDA 3000H\n        LXI H,3002H\n              SUB M\n              JC      NOSTK                     ; quantity > stock\n              STA 3004H\n              MVI A,00H\n              STA 3006H\n              JMP ALERT\n  NOSTK: LDA 3000H\n        STA 3004H                               ; stock unchanged\n              MVI A,01H\n              STA 3006H\n  ALERT: LDA 3004H\n        LXI H,3003H\n              CMP M                             ; stock - threshold\n              MVI A,00H\n              JNC OKK                           ; stock >= threshold\n              MVI A,01H                         ; below threshold -> alert\n  OKK:        STA 3005H\n              HLT\n\nExample: stock 0AH, issue 07H, threshold 05H gives stock 03H and alert 01."
     }
-}`
-            }
-        };;
-
-        const experimentGroups = {
-            "1": ["1"], "2": ["2"], "3": ["3"], "4": ["4"], "5": ["5"],
-            "6": ["6"], "7": ["7"], "8": ["8"], "9": ["9"], "10": ["10"],
-            "11": ["11"], "12": ["12"], "13": ["13"], "14": ["14"], "15": ["15"],
-            "16": ["16"], "17": ["17"], "18": ["18"], "19": ["19"], "20": ["20"]
-        };;
+  },
+  "12": {
+    "num": 12,
+    "part_a": {
+      "sub": "i",
+      "key": "12a",
+      "title": "Question 12(i) \u2014 8051 Port Bit Operations & LEDs",
+      "short_title": "8051 Port Bit Operations & LEDs",
+      "question": "Write an 8051 program to set, clear and complement selected port bits and demonstrate the output using LEDs.",
+      "answer": "LEDs on Port 1 (active-high).\n\n              ORG 0000H\n              MOV P1,#00H                          ; all LEDs OFF\n              ORL P1,#00000101B                    ; SET bits 0 and 2      -> P1 = 05H\n              ACALL DELAY\n              ANL P1,#11111110B                    ; CLEAR bit 0           -> P1 = 04H\n              ACALL DELAY\n              XRL P1,#00001100B                    ; COMPLEMENT bits 2,3   -> P1 = 08H\n              ACALL DELAY\n              CPL P1.7                             ; single-bit complement -> P1 = 88H\n              SJMP $\n  DELAY: MOV R6,#0FFH\n  D1:   MOV R7,#0FFH\n  D2:         DJNZ R7,D2\n              DJNZ R6,D1\n              RET\n              END\n\nDemonstration: LEDs P1.0 and P1.2 glow (set), P1.0 goes off (clear), then P1.2 turns off and\nP1.3 turns on (complement), and finally P1.7 turns on."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "12b",
+      "title": "Question 12(ii) \u2014 8085 Employee Gross Salary Calculation",
+      "short_title": "8085 Employee Gross Salary Calculation",
+      "question": "Develop an 8085 program to calculate an employee's gross salary using basic salary and predefined allowances. The application should compute total earnings and store the final salary details in memory.",
+      "answer": "Gross = Basic + DA + HRA + Other allowance (all 16-bit amounts).\n\n  ; 3000H-3001H = Basic, 3002H-3003H = DA, 3004H-3005H = HRA\n  ; 3006H-3007H = Other allowance\n  ; 3008H-3009H = Gross salary\n              LHLD 3000H                        ; HL = basic\n              XCHG                              ; DE = basic\n              LHLD 3002H                        ; HL = DA\n              DAD D                             ; HL = basic + DA\n              XCHG\n              LHLD 3004H                        ; HL = HRA\n              DAD D                             ; HL = + HRA\n              XCHG\n              LHLD 3006H                        ; HL = other allowance\n              DAD D                             ; HL = gross\n              SHLD 3008H\n              HLT\n\nExample: Basic 3A98H (15000), DA 1388H (5000), HRA 0BB8H (3000), Other 03E8H (1000)\ngives gross 5DC0H (24000)."
+    }
+  },
+  "13": {
+    "num": 13,
+    "part_a": {
+      "sub": "i",
+      "key": "13a",
+      "title": "Question 13(i) \u2014 8051 AND / OR / XOR Logic",
+      "short_title": "8051 AND / OR / XOR Logic",
+      "question": "Write a Keil C program to perform AND, OR and XOR operations on two 8-bit values and store each result separately.",
+      "answer": "#include <reg51.h>\n  void main(void)\n  {\n          unsigned char a = 0xAC, b = 0x5F;\n          unsigned char r_and, r_or, r_xor;\n          r_and = a & b;                         // 0x0C\n          r_or        = a | b;                   // 0xFF\n          r_xor = a ^ b;                         // 0xF3\n          P0 = r_and;\n          P1 = r_or;\n          P2 = r_xor;\n          while (1);\n  }"
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "13b",
+      "title": "Question 13(ii) \u2014 8085 Slabs-Based Electricity Bill",
+      "short_title": "8085 Slabs-Based Electricity Bill",
+      "question": "Design an 8085 program to calculate the electricity bill based on the number of units consumed. The application should implement slab-wise tariff calculation and store the final bill amount in memory.",
+      "answer": "Tariff used: first 100 units at Rs 1, next 100 units (101-200) at Rs 2, above 200 units at Rs 3.\n\n  ; 3000H = units consumed, 3001H-3002H = bill amount (low byte first)\n              LDA 3000H\n              CPI 65H                           ; 101\n              JC      SLAB1                     ; units <= 100\n              CPI 0C9H                          ; 201\n              JC SLAB2                          ; units <= 200\n              SUI 0C8H                          ; slab 3: A = units - 200\n              MOV E,A\n              ADD A\n              ADD E                             ; A = 3 x (units - 200)\n              MOV E,A\n              MVI D,00H\n              LXI H,012CH                       ; 300 for the first 200 units\n              DAD D\n              JMP SAVE\n  SLAB2: SUI 64H                                ; A = units - 100\n              ADD A                             ; x 2\n              MOV E,A\n              MVI D,00H\n              LXI H,0064H                       ; 100 for the first slab\n              DAD D\n\n              JMP SAVE\n  SLAB1: MOV L,A                                ; bill = units x 1\n        MVI H,00H\n  SAVE: SHLD 3001H\n              HLT\n\nExamples: 50 units gives Rs 50 (0032H); 150 units gives 100 + 100 = Rs 200 (00C8H); 220\nunits gives 300 + 60 = Rs 360 (0168H)."
+    }
+  },
+  "14": {
+    "num": 14,
+    "part_a": {
+      "sub": "i",
+      "key": "14a",
+      "title": "Question 14(i) \u2014 8051 ADC0804 Interface & Conversion",
+      "short_title": "8051 ADC0804 Interface & Conversion",
+      "question": "Interface an ADC with 8051, initiate conversion through a program and read/store the digital output for two analog input levels.",
+      "answer": "ADC0804: data lines D0-D7 to P1, CS to GND, WR to P2.6, RD to P2.5, INTR to P2.7, clock\nfrom the 10K / 150 pF RC network, Vref/2 = 2.5 V (5 V full scale, 19.53 mV per step).\n\n  #include <reg51.h>\n  sbit ADC_RD                 = P2^5;\n  sbit ADC_WR                 = P2^6;\n  sbit ADC_INTR = P2^7;\n  void delay_ms(unsigned int ms)\n  {\n          unsigned int i, j;\n          for (i = 0; i < ms; i++)\n                  for (j = 0; j < 123; j++);\n  }\n  unsigned char read_adc(void)\n  {\n          unsigned char value;\n          ADC_WR = 0;                                 // start conversion: WR low then high\n          ADC_WR = 1;\n          while (ADC_INTR == 1);                      // wait for end of conversion (INTR goes low)\n          ADC_RD = 0;                                 // enable the output\n          value = P1;\n          ADC_RD = 1;\n          return value;\n  }\n  void main(void)\n  {\n          unsigned char level1, level2;\n          P1 = 0xFF;                                  // P1 is an input port\n          ADC_INTR = 1;\n          ADC_RD = 1;\n          ADC_WR = 1;\n\n          level1 = read_adc();                        // analog input 1 (e.g. 1 V)\n          P0 = level1;                                // display / store\n          delay_ms(5000);                             // change the pot to the second level\n          level2 = read_adc();                        // analog input 2 (e.g. 3 V)\n          P0 = level2;\n          while (1);\n  }\n\nExpected digital output = Vin / 19.53 mV: 1 V gives about 33H (51), 3 V gives about 99H\n(153)."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "14b",
+      "title": "Question 14(ii) \u2014 8085 Multi-Candidate Vote Counting",
+      "short_title": "8085 Multi-Candidate Vote Counting",
+      "question": "Develop an 8085 application to count votes received by multiple candidates from a stored dataset, determine the winning candidate, identify ties if any, and store the election results in memory.",
+      "answer": "Four candidates (numbered 1 to 4).\n\n  ; 3000H = number of votes, 3001H onwards = votes (each byte = candidate no.\n  1-4)\n  ; 3100H-3103H = vote count of candidates 1-4\n  ; 3104H = winner no., 3105H = winner's votes, 3106H = tie flag (01 = tie)\n              LXI H,3100H                       ; clear the counters\n              MVI B,04H\n              XRA A\n  CLR:        MOV M,A\n              INX H\n              DCR B\n              JNZ CLR\n              LDA 3000H\n              ORA A\n              JZ EXIT                           ; no votes\n              MOV C,A\n              LXI H,3001H\n  CNT:        MOV A,M                           ; candidate number\n              DCR A                             ; index 0-3\n              MOV E,A\n              MVI D,00H\n              PUSH H\n              LXI H,3100H\n              DAD D\n              INR M                             ; count++\n              POP H\n              INX H\n              DCR C\n              JNZ CNT\n              LXI H,3100H                       ; find the winner\n              MOV B,M                           ; B = highest votes\n\n              MVI D,01H                         ; D = winner number\n              MVI E,01H                         ; E = current candidate\n              MVI C,03H\n  FIND: INX H\n              INR E\n              MOV A,M\n              CMP B\n              JC      NEXT\n              JZ NEXT\n              MOV B,A\n              MOV D,E\n  NEXT: DCR C\n              JNZ FIND\n              MOV A,D\n              STA 3104H\n              MOV A,B\n              STA 3105H\n              LXI H,3100H                       ; tie check: how many have the highest count?\n              MVI C,04H\n              MVI E,00H\n  TIE:        MOV A,M\n              CMP B\n              JNZ SKIP\n              INR E\n  SKIP: INX H\n        DCR C\n              JNZ TIE\n              MOV A,E\n              CPI 02H\n              MVI A,00H\n              JC      NOTIE                     ; only one candidate has the highest count\n              MVI A,01H                         ; two or more -> tie\n  NOTIE: STA 3106H\n  EXIT: HLT\n\nExample: votes 1,2,1,3,1,2 give counts 3,2,1,0, winner 01 with 03 votes, tie flag 00."
+    }
+  },
+  "15": {
+    "num": 15,
+    "part_a": {
+      "sub": "i",
+      "key": "15a",
+      "title": "Question 15(i) \u2014 8051 DAC Triangular Waveform",
+      "short_title": "8051 DAC Triangular Waveform",
+      "question": "Develop an 8051 program to generate a triangular waveform using a DAC. Observe and verify it using a DSO/CRO.",
+      "answer": "DAC0808 data lines on P1 (with op-amp current-to-voltage converter).\n\n  #include <reg51.h>\n  void main(void)\n  {\n          unsigned char i;\n          while (1)\n          {\n                  for (i = 0; i < 255; i++)                      // rising ramp 00H -> FEH\n                      P1 = i;\n                  for (i = 255; i > 0; i--)                      // falling ramp FFH -> 01H\n                          P1 = i;\n          }\n  }\n\nVerification: connect the DAC output to the CRO/DSO. A symmetrical triangular wave\nappears, peak amplitude about 5 V (0 to full scale). Note the period (time per division x\ndivisions), frequency = 1 / period, and the rise time equal to the fall time. Adding a small\ndelay in each loop lowers the frequency."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "15b",
+      "title": "Question 15(ii) \u2014 8085 Student Attendance Processing",
+      "short_title": "8085 Student Attendance Processing",
+      "question": "Create an 8085 program to process attendance records of students. The application should calculate attendance percentage, identify students below the minimum attendance requirement, and generate an eligibility status for examinations.",
+      "answer": "Minimum attendance 75 percent.\n\n  ; 3000H = total classes held, 3001H = number of students\n  ; 3002H onwards = classes attended by each student\n  ; 3100H onwards = attendance percentage, 3200H onwards = status (01 =\n  eligible, 00 = detained)\n              LXI SP,27FFH\n              LDA 3001H\n              MOV C,A                           ; C = number of students\n              LXI H,3002H                       ; HL -> attended\n              LXI D,3100H                       ; DE -> percentage output\n  NEXT: MOV A,M\n              CALL PERCENT                      ; A = percentage\n              STAX D\n              CPI 4BH                           ; 75 decimal\n              MVI A,01H\n              JNC ELIG\n              MVI A,00H\n  ELIG: INR D                                   ; 31xx -> 32xx\n              STAX D                            ; store status\n              DCR D\n              INX H\n              INX D\n              DCR C\n\n              JNZ NEXT\n              HLT\n  ; --- subroutine: A = attended -> A = attended x 100 / total ---\n  PERCENT: PUSH H\n        PUSH D\n              PUSH B\n              MOV E,A\n              MVI D,00H\n              MVI B,64H                         ; 100\n              LXI H,0000H\n  MUL:        DAD D\n              DCR B\n              JNZ MUL                           ; HL = attended x 100\n              LDA 3000H\n              MOV C,A                           ; C = total classes\n              MVI B,00H                         ; B = quotient\n  DIV:        MOV A,H\n              ORA A\n              JNZ SUBT\n              MOV A,L\n              CMP C\n        JC DONE\n  SUBT: MOV A,L\n        SUB C\n              MOV L,A\n              JNC NB\n              DCR H\n  NB:         INR B\n              JMP DIV\n  DONE: MOV A,B\n        POP B\n        POP D\n              POP H\n              RET\n\nExample: total 28H (40), attended 24H (36) gives 5AH (90 percent), status 01; attended\n1EH (30) gives 4BH (75 percent), status 01; attended 14H (20) gives 32H (50 percent),\nstatus 00. Total classes must not be zero."
+    }
+  },
+  "16": {
+    "num": 16,
+    "part_a": {
+      "sub": "i",
+      "key": "16a",
+      "title": "Question 16(i) \u2014 8051 Timer 1 50ms Delay Function",
+      "short_title": "8051 Timer 1 50ms Delay Function",
+      "question": "Write a Keil C program to configure Timer 1 and toggle an LED periodically. Verify the output timing.",
+      "answer": "#include <reg51.h>\n  sbit LED = P1^0;\n  void delay_50ms(void)\n  {\n          TMOD = 0x10;                             // Timer 1, Mode 1 (16-bit)\n          TH1 = 0x4C;                              // 4C00H -> 50 ms at 11.0592 MHz\n          TL1       = 0x00;\n          TR1       = 1;\n          while (TF1 == 0);                        // wait for overflow\n          TR1 = 0;\n          TF1 = 0;\n  }\n  void main(void)\n  {\n          unsigned char i;\n          while (1)\n          {\n                  LED = ~LED;\n                  for (i = 0; i < 20; i++)                 // 20 x 50 ms = 1 s\n                          delay_50ms();\n          }\n  }\n\nVerification: in Keil, set Xtal = 11.0592 MHz (Project > Options > Target), run in the\ndebugger and open Peripherals > I/O Ports > Port 1. Watch the elapsed time (sec) in the\nRegisters window; P1.0 changes state every 1.000 s. On hardware, check with a CRO:\nperiod = 2 s, frequency = 0.5 Hz."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "16b",
+      "title": "Question 16(ii) \u2014 8085 5-Product Inventory Monitoring",
+      "short_title": "8085 5-Product Inventory Monitoring",
+      "question": "Develop an inventory monitoring application that maintains stock levels for multiple products. The program should update stock after sales, detect out-of-stock conditions, and identify products requiring replenishment.",
+      "answer": "Written in 8085 assembly for five products.\n\n  ; 3000H-3004H = stock of 5 products, 3010H-3014H = quantity sold\n  ; 3020H = reorder level\n  ; 3100H-3104H = status (00 = OK, 01 = needs replenishment, 02 = out of stock)\n        LXI H,3000H       ; HL -> stock\n        LXI D,3010H                             ; DE -> sales\n        MVI C,05H\n  NEXT: LDAX D\n              MOV B,A\n              MOV A,M\n              SUB B                             ; stock - sold\n              JNC OK\n              XRA A                             ; sold more than stock -> stock = 0\n\n  OK:         MOV M,A                           ; updated stock\n              ORA A\n              JZ OUTST\n              LDA 3020H\n              MOV B,A\n              MOV A,M\n              CMP B                             ; stock - reorder level\n              JC REORD\n              MVI A,00H\n        JMP STORE\n  OUTST: MVI A,02H\n        JMP STORE\n  REORD: MVI A,01H\n  STORE: INR H                                  ; 30xx -> 31xx\n        MOV M,A\n              DCR H\n              INX H\n              INX D\n              DCR C\n              JNZ NEXT\n              HLT\n\nExample: stock 0A, sold 03, reorder level 05 gives stock 07, status 00; stock 06, sold 03\ngives stock 03, status 01; stock 04, sold 04 gives stock 00, status 02."
+    }
+  },
+  "17": {
+    "num": 17,
+    "part_a": {
+      "sub": "i",
+      "key": "17a",
+      "title": "Question 17(i) \u2014 8051 Serial UART Echo & LEDs",
+      "short_title": "8051 Serial UART Echo & LEDs",
+      "question": "Develop a Keil C program to receive a character through the serial port and transmit the same character back. Verify using a serial terminal.",
+      "answer": "#include <reg51.h>\n  void main(void)\n  {\n          unsigned char ch;\n          TMOD = 0x20;                          // Timer 1, Mode 2 (auto-reload) for baud rate\n          TH1 = 0xFD;                           // 9600 baud at 11.0592 MHz\n          SCON = 0x50;                          // Mode 1 (8-bit UART), REN = 1\n          TR1 = 1;\n          while (1)\n          {\n                  while (RI == 0);                   // wait for a character\n                  ch = SBUF;\n                  RI = 0;\n                  SBUF = ch;                         // send it back\n                  while (TI == 0);\n                  TI = 0;\n          }\n  }\n\nVerification: connect the 8051 to the PC through a MAX232 / USB-serial adapter, open a\nterminal (Putty, Tera Term, or the Keil Serial Window UART#1) at 9600 baud, 8 data bits, no\nparity, 1 stop bit. Every key typed appears again on the screen because the 8051 echoes it."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "17b",
+      "title": "Question 17(ii) \u2014 8085 Patient Priority Sorting (Emergency)",
+      "short_title": "8085 Patient Priority Sorting (Emergency)",
+      "question": "Design an 8085 program to process patient priority values stored in memory. The application should sort patients based on priority and identify the patient requiring immediate attention.",
+      "answer": "Higher number = higher priority. At least 2 patients.\n\n  ; 3000H = number of patients, 3001H onwards = priority values\n  ; 3100H = highest priority value, 3101H = patient number needing immediate\n  attention\n  ; After the program, 3001H onwards holds priorities sorted in descending\n  order\n        LDA 3000H\n              MOV C,A\n              LXI H,3001H\n              MOV B,M                           ; B = highest priority so far\n              MVI D,01H                         ; D = its patient number\n              MVI E,01H                         ; E = current patient number\n        DCR C\n  FIND: INX H\n        INR E\n              MOV A,M\n              CMP B\n              JC      FN\n\n              JZ FN\n              MOV B,A\n              MOV D,E\n  FN:         DCR C\n              JNZ FIND\n              MOV A,B\n              STA 3100H\n              MOV A,D\n              STA 3101H                         ; patient requiring immediate attention\n              LDA 3000H                         ; bubble sort, descending\n              DCR A\n        MOV D,A                                 ; D = number of passes\n  OUTER: LXI H,3001H\n        MOV C,D\n  INNER: MOV A,M\n        INX H\n              CMP M\n              JNC NOSW                          ; current >= next -> no swap\n              MOV B,M\n              MOV M,A\n              DCX H\n              MOV M,B\n        INX H\n  NOSW: DCR C\n              JNZ INNER\n              DCR D\n              JNZ OUTER\n              HLT\n\nExample: priorities 03, 09, 05, 01 give 3100H = 09, 3101H = 02, and the sorted list 09, 05, 03,\n01."
+    }
+  },
+  "18": {
+    "num": 18,
+    "part_a": {
+      "sub": "i",
+      "key": "18a",
+      "title": "Question 18(i) \u2014 8085 16-Bit Subtraction",
+      "short_title": "8085 16-Bit Subtraction",
+      "question": "Write an 8085 program to subtract two 16-bit numbers and store the difference in consecutive memory locations.",
+      "answer": "; 3000H-3001H = minuend (low, high), 3002H-3003H = subtrahend\n  ; 3004H-3005H = difference, 3006H = borrow\n        LDA 3000H\n              LXI H,3002H\n              SUB M                             ; low bytes\n              STA 3004H\n              LDA 3001H\n              LXI H,3003H\n              SBB M                             ; high bytes with borrow\n              STA 3005H\n              MVI A,00H\n              ACI 00H                           ; A = final borrow\n              STA 3006H\n              HLT\n\nExample: 5000H - 2345H = 2CBBH, so 3004H = BBH, 3005H = 2CH, borrow 00."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "18b",
+      "title": "Question 18(ii) \u2014 8085 Student Marks Sorting & Ranks",
+      "short_title": "8085 Student Marks Sorting & Ranks",
+      "question": "Develop an 8085 application that reads marks of multiple students, sorts them in descending order, assigns ranks, identifies the topper, and stores the ranked list in memory.",
+      "answer": "Students with equal marks get the same rank. At least 2 students.\n\n  ; 3000H = number of students, 3001H onwards = marks (original order)\n  ; 3100H onwards = sorted marks (descending), 3200H onwards = ranks\n  ; 3300H = topper's marks, 3301H = topper's student number\n              LDA 3000H                         ; copy marks to 3100H\n              MOV C,A\n              LXI H,3001H\n              LXI D,3100H\n  CPY:        MOV A,M\n              STAX D\n              INX H\n              INX D\n              DCR C\n              JNZ CPY\n              LDA 3000H                         ; bubble sort the copy, descending\n        DCR A\n        MOV D,A\n  OUTER: LXI H,3100H\n        MOV C,D\n  INNER: MOV A,M\n        INX H\n              CMP M\n              JNC NOSW\n              MOV B,M\n\n              MOV M,A\n              DCX H\n              MOV M,B\n              INX H\n  NOSW: DCR C\n        JNZ INNER\n        DCR D\n              JNZ OUTER\n              LDA 3000H                         ; assign ranks\n              MOV C,A\n              LXI H,3100H\n              MVI E,00H                         ; E = position\n        MVI D,00H                               ; D = previous rank\n        MVI B,0FFH                              ; B = previous mark\n  RANK: INR E\n              MOV A,M\n              CMP B\n              JZ SAME                           ; same marks -> same rank\n        MOV D,E                                 ; new rank = position\n  SAME: MOV B,A\n              MOV A,D\n              INR H                             ; 31xx -> 32xx\n              MOV M,A\n              DCR H\n              INX H\n              DCR C\n              JNZ RANK\n              LDA 3100H                         ; topper\n              STA 3300H\n              MOV B,A\n              LDA 3000H\n              MOV C,A\n              LXI H,3001H\n              MVI D,01H\n  FINDT: MOV A,M\n        CMP B\n              JZ FOUND\n              INX H\n              INR D\n        DCR C\n        JNZ FINDT\n  FOUND: MOV A,D\n              STA 3301H                         ; topper's student number\n              HLT\n\nExample: marks 45, 78, 62, 78 give sorted list 78, 78, 62, 45, ranks 01, 01, 03, 04, topper\nmarks 78, topper student number 02."
+    }
+  },
+  "19": {
+    "num": 19,
+    "part_a": {
+      "sub": "i",
+      "key": "19a",
+      "title": "Question 19(i) \u2014 8051 Decimal Up-Counter (0-9)",
+      "short_title": "8051 Decimal Up-Counter (0-9)",
+      "question": "Write an 8051 program to display a decimal up-counter from 0 to 9 on LEDs with an approximately 0.5-second interval.",
+      "answer": "LEDs on P1 (the count is shown in binary on P1.0-P1.3).\n\n        ORG 0000H\n  START: MOV A,#00H\n  BACK: MOV P1,A\n              ACALL DELAY\n              INC A\n              CJNE A,#0AH,BACK                  ; stop at 10 and restart from 0\n        SJMP START\n  DELAY: MOV R0,#10                             ; 10 x 50 ms = 0.5 s\n  AGAIN: MOV TMOD,#01H                          ; Timer 0, Mode 1\n        MOV TH0,#4CH                            ; 4C00H -> 50 ms\n        MOV TL0,#00H\n        SETB TR0\n  WAIT: JNB TF0,WAIT\n        CLR TR0\n              CLR TF0\n              DJNZ R0,AGAIN\n              RET\n              END"
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "19b",
+      "title": "Question 19(ii) \u2014 8051 Smart Irrigation Pump System",
+      "short_title": "8051 Smart Irrigation Pump System",
+      "question": "A smart irrigation system receives soil-moisture and temperature readings. Develop an 8051 C program using logical operators to switch ON the water pump when soil moisture is below the specified threshold and temperature is above the specified threshold.",
+      "answer": "Moisture sensor ADC on P1, temperature sensor ADC on P3, pump relay on P2.0.\n\n  #include <reg51.h>\n  #define MOISTURE_TH 40\n  #define TEMP_TH     30\n  sbit PUMP = P2^0;\n  void main(void)\n  {\n      unsigned char moisture, temperature;\n          P1 = 0xFF;                                   // inputs\n          P3 = 0xFF;\n          while (1)\n          {\n              moisture                    = P1;\n                  temperature = P3;\n                  if (moisture < MOISTURE_TH && temperature > TEMP_TH)   // logical AND\n                      PUMP = 1;          // soil dry and weather hot -> pump ON\n                  else\n                          PUMP = 0;\n          }\n  }"
+    }
+  },
+  "20": {
+    "num": 20,
+    "part_a": {
+      "sub": "i",
+      "key": "20a",
+      "title": "Question 20(i) \u2014 8051 DAC Square Waveform",
+      "short_title": "8051 DAC Square Waveform",
+      "question": "Write an 8051 program to generate a square waveform using a DAC. Observe the output using a DSO and record the waveform.",
+      "answer": "#include <reg51.h>\n  void delay(void)\n  {\n          unsigned char i;\n          for (i = 0; i < 250; i++);\n  }\n  void main(void)\n  {\n          while (1)\n          {\n                  P1 = 0xFF;                    // HIGH level (full scale, about 5 V)\n                  delay();\n                  P1 = 0x00;                    // LOW level (0 V)\n                  delay();\n          }\n  }\n\nObservation and record: connect the DAC output (after the op-amp) to the DSO. A\nsquare wave appears switching between 0 V and about 5 V. Record the amplitude (Vpp),\nthe time period T (HIGH time + LOW time), the frequency f = 1 / T, and the duty cycle\n(about 50 percent). Sketch or save the DSO screen as the recorded waveform."
+    },
+    "part_b": {
+      "sub": "ii",
+      "key": "20b",
+      "title": "Question 20(ii) \u2014 8085 Inspection System (Tolerance Check)",
+      "short_title": "8085 Inspection System (Tolerance Check)",
+      "question": "An automated inspection system receives two digital values representing the measured and standard dimensions of a component. Develop an 8051 C program to check whether the measured value is within an acceptable tolerance range. If it is within the range, activate a GREEN LED; otherwise, activate a RED LED.",
+      "answer": "Measured value on P1, standard value on P2, tolerance of plus or minus 2, LEDs on P3.0\n(GREEN) and P3.1 (RED).\n\n  #include <reg51.h>\n  #define TOLERANCE 2\n  sbit GREEN = P3^0;\n  sbit RED   = P3^1;\n  void main(void)\n  {\n          unsigned char measured, standard;\n          int diff;\n          P1 = 0xFF;                            // inputs\n          P2 = 0xFF;\n          while (1)\n          {\n              measured = P1;\n                  standard = P2;\n                  diff = (int)measured - (int)standard;\n                  if (diff < 0) diff = -diff;               // absolute difference\n                  if (diff <= TOLERANCE)\n                  {\n                          GREEN = 1; RED = 0;               // within tolerance\n                  }\n                  else\n                  {\n                          GREEN = 0; RED = 1;               // out of tolerance\n                  }\n          }\n  }\n\nExample: standard 50, measured 51 gives GREEN; measured 55 gives RED."
+    }
+  }
+};
 
         const terminalBody = document.getElementById('terminal-body');
         const cmdInput = document.getElementById('cmd-input');
@@ -669,13 +482,14 @@ void main(void) {
 
         // Escape HTML characters safely
         function escapeHtml(str) {
+            if (!str) return '';
             return str
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;");
         }
 
-        // Copy raw text reliably inside iframe or browser
+        // Copy raw text reliably to clipboard
         function copyTextToClipboard(text, btnElement) {
             const textarea = document.createElement('textarea');
             textarea.value = text;
@@ -686,10 +500,12 @@ void main(void) {
             try {
                 document.execCommand('copy');
                 if (btnElement) {
-                    const originalText = btnElement.textContent;
-                    btnElement.textContent = '[Copied]';
+                    const orig = btnElement.textContent;
+                    btnElement.textContent = '[Copied!]';
+                    btnElement.classList.add('bg-white', 'text-black');
                     setTimeout(() => {
-                        btnElement.textContent = originalText;
+                        btnElement.textContent = orig;
+                        btnElement.classList.remove('bg-white', 'text-black');
                     }, 1500);
                 }
                 return true;
@@ -700,12 +516,13 @@ void main(void) {
             }
         }
 
-        // Copy by experiment key
-        function copyExperimentCode(expKey, btnId) {
-            const exp = experiments[expKey];
-            if (!exp) return;
+        // Copy specific subdivision by question number and part ('a' for i, 'b' for ii)
+        function copySubdivisionCode(qNum, partLetter, btnId) {
+            const q = questionsDB[String(qNum)];
+            if (!q) return;
+            const part = (partLetter === 'b' || partLetter === 'ii' || partLetter === '2') ? q.part_b : q.part_a;
             const btn = btnId ? document.getElementById(btnId) : null;
-            copyTextToClipboard(exp.code, btn);
+            copyTextToClipboard(part.answer, btn);
         }
 
         // Render classic Windows CMD + 8085/8051 Startup Banner
@@ -714,11 +531,16 @@ void main(void) {
                 <div class="text-[#cccccc] whitespace-pre-wrap leading-snug">Microsoft Windows [Version 10.0.19045.5011]
 (c) Microsoft Corporation. All rights reserved.
 
-C:\\Users\\Administrator&gt;8085_8051_lab.exe
-Microprocessor &amp; Microcontroller Lab Environment Ready.
-(8085 Assembly &amp; 8051 Keil C Programs Loaded)
+C:\Users\Administrator&gt;8085_8051_lab.exe
+Microprocessor &amp; Microcontroller Practical Laboratory Environment Ready.
+All 20 Questions (40 Subdivisions) Loaded Directly from Official Practical Guide.
 
-Type '1' through '20' to display practical answers, 'ls' to list all questions, 'cp &lt;num&gt;' to copy, or 'cls' to clear.</div>
+COMMANDS:
+  * Type question number 1-20 (e.g. '1', '9') to view both (i) and (ii) with separate copy buttons.
+  * Type '1a' or '1i' for subdivision (i) only; '1b' or '1ii' for subdivision (ii) only.
+  * Type 'cp 1a' or 'cp 1b' to copy that subdivision's code directly to clipboard.
+  * Type 'ls' or 'dir' to list all 20 questions in an ASCII table.
+  * Type 'cls' to clear screen.</div>
             `;
             appendOutputBlock(bannerHTML);
         }
@@ -727,7 +549,7 @@ Type '1' through '20' to display practical answers, 'ls' to list all questions, 
         function appendCommandEcho(rawCmd) {
             const cmdLine = document.createElement('div');
             cmdLine.className = "text-[#cccccc] whitespace-pre-wrap pt-1";
-            cmdLine.innerHTML = `C:\\Users\\Administrator&gt; <span class="text-[#ffffff]">${escapeHtml(rawCmd)}</span>`;
+            cmdLine.innerHTML = `C:\Users\Administrator&gt; <span class="text-[#ffffff]">${escapeHtml(rawCmd)}</span>`;
             terminalBody.appendChild(cmdLine);
         }
 
@@ -743,70 +565,75 @@ Type '1' through '20' to display practical answers, 'ls' to list all questions, 
             terminalBody.scrollTop = terminalBody.scrollHeight;
         }
 
-        // Format Experiment Block strictly in monochrome with minimal [Copy] button
-        function renderExperimentBlock(expKey) {
-            const exp = experiments[expKey];
-            if (!exp) return '';
-            const uniqueBtnId = `copy-btn-${expKey}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        // Render one subdivision card
+        function renderSubdivisionCard(part, qNum) {
+            const uniqueBtnId = `copy-btn-${part.key}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
             return `
-                <div class="my-1 border border-[#555555] bg-black p-3">
+                <div class="my-2 border border-[#555555] bg-black p-3">
+                    <!-- Header with Title and Independent Copy Button -->
                     <div class="flex items-center justify-between border-b border-[#444444] pb-1.5 mb-2 text-xs sm:text-sm text-[#cccccc]">
-                        <span>// ${escapeHtml(exp.title)}</span>
+                        <span class="font-bold text-white">// ${escapeHtml(part.title)}</span>
                         <button 
                             id="${uniqueBtnId}"
-                            onclick="copyExperimentCode('${expKey}', '${uniqueBtnId}')" 
-                            class="text-[#ffffff] hover:bg-[#cccccc] hover:text-black px-1.5 py-0.5 border border-[#777777] text-xs cursor-pointer select-none"
-                        >[Copy]</button>
+                            onclick="copySubdivisionCode('${qNum}', '${part.key.slice(-1)}', '${uniqueBtnId}')" 
+                            class="text-[#ffffff] hover:bg-[#cccccc] hover:text-black px-2 py-0.5 border border-[#777777] text-xs cursor-pointer select-none font-bold transition"
+                            title="Copy (${part.sub}) code to clipboard"
+                        >[Copy (${part.sub})]</button>
                     </div>
-                    <pre class="text-[#ffffff] text-xs sm:text-sm overflow-x-auto whitespace-pre-wrap leading-relaxed select-all"><code>${escapeHtml(exp.code)}</code></pre>
+
+                    <!-- Question prompt block -->
+                    <div class="text-[#88ccff] text-xs sm:text-sm mb-3 whitespace-pre-wrap leading-normal font-sans bg-[#0c131a] p-2 border-l-2 border-[#2b7fff]">
+                        <span class="text-[#2b7fff] font-bold select-none">[Q (${part.sub})] </span>${escapeHtml(part.question)}
+                    </div>
+
+                    <!-- Full unshortened answer code and notes from PDF -->
+                    <pre class="text-[#ffffff] text-xs sm:text-sm overflow-x-auto whitespace-pre-wrap leading-relaxed select-all font-mono"><code>${escapeHtml(part.answer)}</code></pre>
                 </div>
             `;
         }
 
-        function renderExperimentList() {
-            const listItems = [
-                ["1", "8085 Subtraction & 8051 Switch LEDs"],
-                ["2", "8085 24-bit Addition & 8051 Smart Home Lights"],
-                ["3", "8085 Division & 8051 Security Panel"],
-                ["4", "8085 16-bit Multiplication & 8051 Access Control"],
-                ["5", "8085 Memory Block Transfer & 8051 Tank Pump"],
-                ["6", "8085 Cube Calc & 8051 XOR Toggle"],
-                ["7", "8085 2's Complement & 8051 Shopping Total"],
-                ["8", "8085 8-bit Multiplication & 8051 Streetlights"],
-                ["9", "8051 Timer Delay & 8085 Student Marks"],
-                ["10", "8051 Traffic Light & 8085 Banking"],
-                ["11", "8051 Stepper Motor & 8085 Book Inventory"],
-                ["12", "8051 Port Bit Ops & 8085 Gross Salary"],
-                ["13", "8051 AND/OR/XOR & 8085 Electricity Bill"],
-                ["14", "8051 ADC Interface & 8085 Vote Counting"],
-                ["15", "8051 DAC Triangular & 8085 Attendance"],
-                ["16", "8051 Timer 1 C Code & 8085 Inventory Monitor"],
-                ["17", "8051 Serial Echo & 8085 Patient Priority"],
-                ["18", "8085 16-bit Sub & 8085 Rank Sorting"],
-                ["19", "8051 Decimal Counter & 8051 Smart Irrigation"],
-                ["20", "8051 DAC Square Wave & 8051 Automated Inspection"]
-            ];
-
-            let rows = '';
-            listItems.forEach(([cmd, title]) => {
-                const paddedKey = cmd.padEnd(4, ' ');
-                const paddedTitle = title.padEnd(64, ' ');
-                rows += `| ${paddedKey} | ${escapeHtml(paddedTitle)} |\n`;
-            });
-
+        // Render full question (both subdivisions i and ii separately)
+        function renderFullQuestion(qNum) {
+            const q = questionsDB[String(qNum)];
+            if (!q) return '';
+            const cardA = renderSubdivisionCard(q.part_a, qNum);
+            const cardB = renderSubdivisionCard(q.part_b, qNum);
             return `
-                <pre class="text-[#cccccc] text-xs sm:text-sm overflow-x-auto leading-snug">+------+------------------------------------------------------------------+
-| Q#   | Question Title (8085 & 8051 Practical)                           |
-+------+------------------------------------------------------------------+
-${rows}+------+------------------------------------------------------------------+
-20 rows in set (0.00 sec)
-Commands: type 1-20 to view, cp &lt;num&gt; to copy, cls to clear.</pre>
+                <div class="my-2">
+                    <div class="text-[#aaaaaa] text-xs sm:text-sm font-bold border-b border-[#333333] pb-1 mb-1">
+                        ══════ QUESTION ${qNum} : ${escapeHtml(q.part_a.short_title)} &amp; ${escapeHtml(q.part_b.short_title)} ══════
+                    </div>
+                    ${cardA}
+                    ${cardB}
+                </div>
             `;
         }
 
-        // Normalize key
+        // Render ASCII Table List of all 20 Questions with both subdivisions
+        function renderExperimentList() {
+            let rows = '';
+            for (let q = 1; q <= 20; q++) {
+                const item = questionsDB[String(q)];
+                const paddedNum = String(q).padEnd(3, ' ');
+                const textPart = `(i) ${item.part_a.short_title} | (ii) ${item.part_b.short_title}`;
+                const paddedText = textPart.padEnd(80, ' ').slice(0, 80);
+                rows += `| ${paddedNum} | ${escapeHtml(paddedText)} |
+`;
+            }
+
+            return `
+                <pre class="text-[#cccccc] text-xs sm:text-sm overflow-x-auto leading-snug">+-----+----------------------------------------------------------------------------------+
+| Q#  | Question Title (8085 &amp; 8051 Practical - All Subdivisions)                        |
++-----+----------------------------------------------------------------------------------+
+${rows}+-----+----------------------------------------------------------------------------------+
+20 questions loaded (40 subdivisions total).
+Commands: type 1-20 (or 1a, 1b) to view, cp &lt;1a / 1b / 1&gt; to copy, cls to clear.</pre>
+            `;
+        }
+
+        // Normalize input string
         function normalizeKey(str) {
-            return str.replace(/\./g, '').toLowerCase();
+            return str.replace(/[\.\(\)\-]/g, '').toLowerCase().trim();
         }
 
         // Main command router
@@ -822,7 +649,7 @@ Commands: type 1-20 to view, cp &lt;num&gt; to copy, cls to clear.</pre>
             commandHistory.push(trimmed);
             historyIndex = commandHistory.length;
 
-            // Strip trailing semicolon if user types "1;" or "ls;"
+            // Strip trailing semicolon
             const cleanInput = trimmed.replace(/;$/, '').trim();
             const lower = cleanInput.toLowerCase();
             const norm = normalizeKey(lower);
@@ -836,18 +663,26 @@ Commands: type 1-20 to view, cp &lt;num&gt; to copy, cls to clear.</pre>
             // Echo user command
             appendCommandEcho(trimmed);
 
-            // Check question number (1-20)
-            if (experiments.hasOwnProperty(norm)) {
-                appendOutputBlock(renderExperimentBlock(norm));
-                return;
+            // Check single subdivision commands: "1a", "1i", "1.1", "q1a", "q1i"
+            const subMatch = norm.match(/^(?:exp|experiment|ex|q|question)?\s*([0-9]{1,2})\s*([ab]|i{1,2}|1|2)$/);
+            if (subMatch) {
+                const qNum = subMatch[1];
+                const subKey = subMatch[2];
+                const q = questionsDB[qNum];
+                if (q) {
+                    const isPartB = (subKey === 'b' || subKey === 'ii' || subKey === '2');
+                    const part = isPartB ? q.part_b : q.part_a;
+                    appendOutputBlock(renderSubdivisionCard(part, qNum));
+                    return;
+                }
             }
 
-            // Support "exp 1", "q1", "q 1", "question 1", "ans 1", etc.
-            const expMatch = norm.match(/^(?:exp|experiment|ex|q|question|ans|answer|p|prac|practical)\s*([0-9]{1,2})$/);
-            if (expMatch) {
-                const target = expMatch[1];
-                if (experiments.hasOwnProperty(target)) {
-                    appendOutputBlock(renderExperimentBlock(target));
+            // Check full question commands: "1", "q1", "exp 1"
+            const fullMatch = norm.match(/^(?:exp|experiment|ex|q|question)?\s*([0-9]{1,2})$/);
+            if (fullMatch) {
+                const qNum = fullMatch[1];
+                if (questionsDB.hasOwnProperty(qNum)) {
+                    appendOutputBlock(renderFullQuestion(qNum));
                     return;
                 }
             }
@@ -858,14 +693,37 @@ Commands: type 1-20 to view, cp &lt;num&gt; to copy, cls to clear.</pre>
                 return;
             }
 
-            // Copy command: "copy <1-20>" or "cp <num>"
-            const copyMatch = lower.match(/^(?:copy|cp)\s+([0-9]{1,2})$/);
-            if (copyMatch) {
-                const targetKey = normalizeKey(copyMatch[1]);
-                if (experiments.hasOwnProperty(targetKey)) {
-                    const ok = copyTextToClipboard(experiments[targetKey].code, null);
+            // Copy command: "copy 1a", "cp 1a", "cp 1i", "cp 1b", "cp 1ii"
+            const copySubMatch = lower.match(/^(?:copy|cp)\s+([0-9]{1,2})\s*[\.\(\)\-]?\s*([ab]|i{1,2}|1|2)$/);
+            if (copySubMatch) {
+                const qNum = copySubMatch[1];
+                const subKey = copySubMatch[2];
+                const q = questionsDB[qNum];
+                if (q) {
+                    const isPartB = (subKey === 'b' || subKey === 'ii' || subKey === '2');
+                    const part = isPartB ? q.part_b : q.part_a;
+                    const ok = copyTextToClipboard(part.answer, null);
                     if (ok) {
-                        appendOutputBlock(`<div class="text-[#cccccc]">Question ${targetKey} code copied to clipboard.</div>`);
+                        appendOutputBlock(`<div class="text-[#cccccc]">Question ${qNum}(${part.sub}) code copied to clipboard successfully.</div>`);
+                    }
+                    return;
+                }
+            }
+
+            // Copy whole question: "copy 1" or "cp 1"
+            const copyFullMatch = lower.match(/^(?:copy|cp)\s+([0-9]{1,2})$/);
+            if (copyFullMatch) {
+                const qNum = copyFullMatch[1];
+                const q = questionsDB[qNum];
+                if (q) {
+                    const combined = `// ${q.part_a.title}
+${q.part_a.answer}
+
+// ${q.part_b.title}
+${q.part_b.answer}`;
+                    const ok = copyTextToClipboard(combined, null);
+                    if (ok) {
+                        appendOutputBlock(`<div class="text-[#cccccc]">Question ${qNum} (both parts i &amp; ii) copied to clipboard. Tip: use 'cp ${qNum}a' or 'cp ${qNum}b' for individual parts.</div>`);
                     }
                     return;
                 }
@@ -874,10 +732,7 @@ Commands: type 1-20 to view, cp &lt;num&gt; to copy, cls to clear.</pre>
             // All questions at once (1 to 20)
             if (lower === 'all') {
                 for (let i = 1; i <= 20; i++) {
-                    const k = String(i);
-                    if (experiments[k]) {
-                        appendOutputBlock(renderExperimentBlock(k));
-                    }
+                    appendOutputBlock(renderFullQuestion(i));
                 }
                 return;
             }
@@ -885,7 +740,7 @@ Commands: type 1-20 to view, cp &lt;num&gt; to copy, cls to clear.</pre>
             // Unknown command fallback
             appendOutputBlock(`
                 <div class="text-[#cccccc] whitespace-pre-wrap">'${escapeHtml(trimmed)}' is not recognized as an internal or external command.
-Type '1'-'20' for question details, 'ls' to list all questions, 'cp &lt;num&gt;' to copy, or 'cls' to clear.</div>
+Type '1'-'20' (or '1a', '1b') to view questions, 'ls' to list, 'cp &lt;1a / 1b / 1&gt;' to copy, or 'cls' to clear.</div>
             `);
         }
 
