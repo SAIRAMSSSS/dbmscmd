@@ -720,26 +720,39 @@ Commands: type 1-20 (or 1a, 1b) to view, cp &lt;1a / 1b / 1&gt; to copy clean co
             // Echo user command
             appendCommandEcho(trimmed);
 
-            // Check single subdivision commands: "1a", "1i", "1.1", "q1a", "q1i"
-            const subMatch = norm.match(/^(?:exp|experiment|ex|q|question)?\s*([0-9]{1,2})\s*([ab]|i{1,2}|1|2)$/);
+            // Check full question commands FIRST: "1" to "20", "q1" to "q20" -> renders BOTH subdivisions
+            const fullMatch = norm.match(/^(?:exp|experiment|ex|q|question)?\s*([0-9]{1,2})$/);
+            if (fullMatch) {
+                const qNum = fullMatch[1];
+                if (questionsDB.hasOwnProperty(qNum)) {
+                    appendOutputBlock(renderFullQuestion(qNum));
+                    return;
+                }
+            }
+
+            // Check single subdivision commands with letter/roman: "1a", "1b", "11a", "11b", "1i", "1ii"
+            const subMatch = norm.match(/^(?:exp|experiment|ex|q|question)?\s*([0-9]{1,2})\s*[\.\_\-\/]?\s*([ab]|i{1,2})$/);
             if (subMatch) {
                 const qNum = subMatch[1];
                 const subKey = subMatch[2];
                 const q = questionsDB[qNum];
                 if (q) {
-                    const isPartB = (subKey === 'b' || subKey === 'ii' || subKey === '2');
+                    const isPartB = (subKey === 'b' || subKey === 'ii');
                     const part = isPartB ? q.part_b : q.part_a;
                     appendOutputBlock(renderSubdivisionCard(part, qNum));
                     return;
                 }
             }
 
-            // Check full question commands: "1", "q1", "exp 1"
-            const fullMatch = norm.match(/^(?:exp|experiment|ex|q|question)?\s*([0-9]{1,2})$/);
-            if (fullMatch) {
-                const qNum = fullMatch[1];
-                if (questionsDB.hasOwnProperty(qNum)) {
-                    appendOutputBlock(renderFullQuestion(qNum));
+            // Check explicit dot/dash notation: "1.1", "1.2", "11.1", "11.2"
+            const dotMatch = cleanInput.toLowerCase().match(/^(?:exp|experiment|ex|q|question)?\s*([0-9]{1,2})\s*[\.\_\-\/]\s*([12])$/);
+            if (dotMatch) {
+                const qNum = dotMatch[1];
+                const partNum = dotMatch[2];
+                const q = questionsDB[qNum];
+                if (q) {
+                    const part = (partNum === '2') ? q.part_b : q.part_a;
+                    appendOutputBlock(renderSubdivisionCard(part, qNum));
                     return;
                 }
             }
@@ -750,15 +763,30 @@ Commands: type 1-20 (or 1a, 1b) to view, cp &lt;1a / 1b / 1&gt; to copy clean co
                 return;
             }
 
-            // Copy command: "copy 1a", "cp 1a", "cp 1i", "cp 1b", "cp 1ii"
-            const copySubMatch = lower.match(/^(?:copy|cp)\s+([0-9]{1,2})\s*[\.\(\)\-]?\s*([ab]|i{1,2}|1|2)$/);
+            // Copy single subdivision: "cp 1a", "cp 11b", "cp 1i", "cp 11.1"
+            const copySubMatch = lower.match(/^(?:copy|cp)\s+([0-9]{1,2})\s*[\.\_\-\/]?\s*([ab]|i{1,2})$/);
             if (copySubMatch) {
                 const qNum = copySubMatch[1];
                 const subKey = copySubMatch[2];
                 const q = questionsDB[qNum];
                 if (q) {
-                    const isPartB = (subKey === 'b' || subKey === 'ii' || subKey === '2');
+                    const isPartB = (subKey === 'b' || subKey === 'ii');
                     const part = isPartB ? q.part_b : q.part_a;
+                    const ok = copyTextToClipboard(part.clean_code, null);
+                    if (ok) {
+                        appendOutputBlock(`<div class="text-[#cccccc]">Question ${qNum}(${part.sub}) clean code copied to clipboard successfully.</div>`);
+                    }
+                    return;
+                }
+            }
+
+            const copyDotMatch = lower.match(/^(?:copy|cp)\s+([0-9]{1,2})\s*[\.\_\-\/]\s*([12])$/);
+            if (copyDotMatch) {
+                const qNum = copyDotMatch[1];
+                const partNum = copyDotMatch[2];
+                const q = questionsDB[qNum];
+                if (q) {
+                    const part = (partNum === '2') ? q.part_b : q.part_a;
                     const ok = copyTextToClipboard(part.clean_code, null);
                     if (ok) {
                         appendOutputBlock(`<div class="text-[#cccccc]">Question ${qNum}(${part.sub}) clean code copied to clipboard successfully.</div>`);
@@ -784,6 +812,22 @@ ${q.part_b.clean_code}`;
                     }
                     return;
                 }
+            }
+
+            // Traffic / Stats command
+            if (lower === 'traffic' || lower === 'stats' || lower === 'analytics') {
+                appendOutputBlock(`
+                    <pre class="text-[#cccccc] text-xs sm:text-sm overflow-x-auto leading-snug">+--------------------------------------------------------------------+
+| dbmscmd.surge.sh TRAFFIC ANALYTICS                                 |
++--------------------------------------------------------------------+
+  Total Visits  : 415+
+  Unique Users  : 304+ unique visitors (Peak 142/day)
+  Total Conns   : 908+
+  Top Sources   : Google, Bing, sairamssss.github.io
+
+Run 'surge dbmscmd.surge.sh stats traffic' in local terminal for live graph.</pre>
+                `);
+                return;
             }
 
             // All questions at once (1 to 20)
